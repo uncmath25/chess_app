@@ -1,0 +1,1 @@
+Setup K8 - https://mattermost.com/blog/how-to-deploy-a-react-app-to-kubernetes-using-docker/
