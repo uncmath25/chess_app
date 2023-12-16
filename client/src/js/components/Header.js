@@ -21,6 +21,10 @@ export default function Header(props) {
         <span style={getPaddingStyle(5)} />
         {TITLE}
       </Navbar.Brand>
+      {/* <Navbar.Toggle aria-controls="responsive-navbar-nav" /> */}
+      <Navbar.Collapse id="responsive-navbar-nav">
+        <Nav className="mr-auto"></Nav>
+      </Navbar.Collapse>
       <Navbar.Brand>
         <Button variant="success" onClick={() => getResource("test").then(data => props.setTestMessage(data.message))}>
           Test API
