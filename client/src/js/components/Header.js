@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import { Button, Navbar, Nav } from 'react-bootstrap';
 
 import { getPaddingStyle } from '../utils/style';
@@ -26,9 +25,16 @@ export default function Header(props) {
         <Nav className="mr-auto"></Nav>
       </Navbar.Collapse>
       <Navbar.Brand>
-        <Button variant="success" onClick={() => getResource("test").then(data => props.setTestMessage(data.message))}>
-          Test API
+        <Button variant="success" onClick={() => props.setIsPlayerWhite(!props.isPlayerWhite)}>
+          Switch View
         </Button>
+        <span style={getPaddingStyle(5)} />
+        <Button variant="danger" onClick={() => props.updateReset(true)}>
+          Reset
+        </Button>
+        {/* <Button variant="danger" onClick={() => getResource("test").then(data => props.setTestMessage(data.message))}>
+          Test API
+        </Button> */}
       </Navbar.Brand>
     </Navbar>
   );
