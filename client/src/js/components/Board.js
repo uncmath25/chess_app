@@ -1,29 +1,46 @@
 import { useState, useEffect } from 'react';
 import { Col, Container, Row, Table } from 'react-bootstrap';
 
-import { BOARD_SIZE, getSquareNotation, initEmptySquares, initWhitePieces, initBlackPieces, getPieceImage, getMoveSquares } from '../utils/pieces';
+import { BOARD_SIZE, getSquareNotation, initWhitePieces, initBlackPieces, getPieceImage,
+  getMoveSquares, movePiece, removePiece, isPlayerChecked, noLegalMovesExist,
+  initHasStaringPositionMoved, updateHasStaringPositionMoved } from '../utils/pieces';
 import { getPaddingStyle } from '../utils/style';
 
 export default function Board(props) {
   const [whitePieces, setWhitePieces] = useState(initWhitePieces());
   const [blackPieces, setBlackPieces] = useState(initBlackPieces());
+  const [isGameOver, setIsGameOver] = useState(false);
   const [selectedSquare, setSelectedSquare] = useState("");
-  const [moveSquares, setMoveSquares] = useState({});
+  const [moveSquares, setMoveSquares] = useState([]);
+  const [hasStartingPositionMoved, setHasStartingPositionMoved] = useState(initHasStaringPositionMoved());
   useEffect(() => {
     if (props.reset) {
+      setIsGameOver(false);
       props.setIsWhiteTurn(true);
-      setWhitePieces(initWhitePieces);
-      setBlackPieces(initBlackPieces);
+      props.setIsPlayerInCheck(false);
+      props.setIsPlayerMated(false);
+      props.setIsPlayerStalemated(false);
+      setWhitePieces(initWhitePieces());
+      setBlackPieces(initBlackPieces());
       setSelectedSquare("");
-      setMoveSquares({});
+      setMoveSquares([]);
+      setHasStartingPositionMoved(initHasStaringPositionMoved());
       props.updateReset(false);
+    } else {
+      const isChecked = isPlayerChecked(whitePieces, blackPieces, hasStartingPositionMoved, props.isWhiteTurn);
+      props.setIsPlayerInCheck(isChecked);
+      if (noLegalMovesExist(whitePieces, blackPieces, hasStartingPositionMoved, props.isWhiteTurn)) {
+        if (isChecked) { props.setIsPlayerMated(true); }
+        else { props.setIsPlayerStalemated(true); }
+        setIsGameOver(true);
+      }
     }
   });
   const onSquareClick = (row, col) => {
-    // logClick(row, col, whitePieces, blackPieces);
+    if (isGameOver) { return; }
     const square = getSquareNotation(row, col);
     if (selectedSquare) {
-      if (moveSquares[square]) {
+      if (moveSquares.includes(square)) {
         if (props.isWhiteTurn) {
           setWhitePieces(movePiece(whitePieces, selectedSquare, square));
           if (blackPieces[square]) { setBlackPieces(removePiece(blackPieces, square)); }
@@ -31,20 +48,24 @@ export default function Board(props) {
           setBlackPieces(movePiece(blackPieces, selectedSquare, square));
           if (whitePieces[square]) { setWhitePieces(removePiece(whitePieces, square)); }
         }
+        setHasStartingPositionMoved(updateHasStaringPositionMoved(
+          hasStartingPositionMoved, selectedSquare));
         setSelectedSquare("");
-        setMoveSquares({});
+        setMoveSquares([]);
         props.setIsWhiteTurn(!props.isWhiteTurn);
       } else {
         setSelectedSquare("");
-        setMoveSquares({});
+        setMoveSquares([]);
       }
     } else {
       if (props.isWhiteTurn && whitePieces[square]) {
         setSelectedSquare(square);
-        setMoveSquares(getMoveSquares(row, col, whitePieces, blackPieces, props.isWhiteTurn));
+        setMoveSquares(getMoveSquares(row, col, whitePieces, blackPieces, hasStartingPositionMoved,
+          props.isWhiteTurn, props.isPlayerInCheck));
       } else if (!props.isWhiteTurn && blackPieces[square]) {
         setSelectedSquare(square);
-        setMoveSquares(getMoveSquares(row, col, whitePieces, blackPieces, props.isWhiteTurn));
+        setMoveSquares(getMoveSquares(row, col, blackPieces, whitePieces, hasStartingPositionMoved,
+          props.isWhiteTurn, props.isPlayerInCheck));
       }
     }
   };
@@ -103,7 +124,7 @@ const getTileBackgroundStyle = (row, col, selectedSquare, moveSquares) => {
   if (square == selectedSquare) {
     style['backgroundColor'] = isLightSquare ? 'rgb(230, 230, 0)' : 'rgb(150, 200, 50)';
   }
-  if (moveSquares[square]) {
+  if (moveSquares.includes(square)) {
     style['backgroundColor'] = isLightSquare ? 'rgb(180, 230, 230)' : 'rgb(120, 180, 180)';
   }
   return style;
@@ -113,28 +134,4 @@ const renderPiece = (isWhite, piece) => {
   if (piece) {
     return (<img src={getPieceImage(isWhite, piece)} width="55" />);
   }
-}
-
-const logClick = (row, col, whitePieces, blackPieces) => {
-  const square = getSquareNotation(row, col);
-    if (whitePieces[square]) {
-      console.log(`White ${whitePieces[square]} at ${square}`)
-    } else if (blackPieces[square]) {
-      console.log(`Black ${blackPieces[square]} at ${square}`)
-    } else {
-      console.log(`No pieces at ${square}`)
-    }
-}
-
-const movePiece = (pieces, oldSquare, newSquare) => {
-  const newPieces = Object.assign({}, pieces)
-  newPieces[newSquare] = newPieces[oldSquare];
-  newPieces[oldSquare] = "";
-  return newPieces;
-}
-
-const removePiece = (pieces, square) => {
-  const newPieces = Object.assign({}, pieces)
-  newPieces[square] = "";
-  return newPieces;
 }
