@@ -1,7 +1,9 @@
 import { Button, Navbar, Nav } from 'react-bootstrap';
 
+// import { getResource } from '../utils/apiClient';
+import * as Game from '../utils/game';
 import { getPaddingStyle } from '../utils/style';
-import { getResource } from '../utils/apiClient';
+
 const LOGO = require('../../assets/logo.ico');
 const TITLE = 'Chess App';
 
@@ -25,11 +27,11 @@ export default function Header(props) {
         <Nav className="mr-auto"></Nav>
       </Navbar.Collapse>
       <Navbar.Brand>
-        <Button variant="success" onClick={() => props.setIsPlayerWhite(!props.isPlayerWhite)}>
+        <Button variant="success" onClick={() => props.setGame(Game.changeView(props.game))}>
           Switch View
         </Button>
         <span style={getPaddingStyle(5)} />
-        <Button variant="danger" onClick={() => props.updateReset(true)}>
+        <Button variant="danger" onClick={() => props.setGame(Game.init())}>
           Reset
         </Button>
         {/* <Button variant="danger" onClick={() => getResource("test").then(data => props.setTestMessage(data.message))}>

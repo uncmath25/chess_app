@@ -10,7 +10,7 @@ export default function Info(props) {
     }
     if (props.isPlayerStalemated) { result = "Stalemate..."; }
     return result;
-  }
+  };
   return (
     <Container>
       <Row>
