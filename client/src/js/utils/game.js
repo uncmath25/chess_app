@@ -88,7 +88,7 @@ export const clearSelection = (game) => {
 export const select = (game, row, col) => {
   const newGame = Object.assign({}, game);
   newGame[KEY_SELECTED_SQUARE] = Board.getSquareNotation(row, col);
-  newGame[KEY_POSSIBLE_MOVE_SQUARES] = Move.getMoveSquares(row, col,
+  newGame[KEY_POSSIBLE_MOVE_SQUARES] = Move.getMoves(row, col,
     isWhiteTurn(game) ? getWhitePieces(game) : getBlackPieces(game),
     isWhiteTurn(game) ? getBlackPieces(game) : getWhitePieces(game),
     isWhiteTurn(game)

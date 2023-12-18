@@ -1,11 +1,15 @@
 import * as Board from './board';
 
-export const getMoveSquares = (row, col, pieces, otherPieces, isWhiteTurn) => {
-  let moveSquares = getAllPossibleMoveSquares(row, col, pieces, otherPieces, isWhiteTurn);;
-  return moveSquares;
+export const getMoves = (row, col, pieces, otherPieces, isWhiteTurn) => {
+  let moves = getAllPossibleMoves(row, col, pieces, otherPieces, isWhiteTurn)
+  const square = Board.getSquareNotation(row, col);
+  if ((isWhiteTurn && pieces[square] == Board.KING) || (!isWhiteTurn && otherPieces[square] == Board.KING)) {
+    moves = moves.filter((square) => !isSquareInCheck(square, pieces, otherPieces, isWhiteTurn));
+  }
+  return moves;
 };
 
-// export const getMoveSquares = (row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn, skipCheck=false) => {
+// export const getMoves = (row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn, skipCheck=false) => {
 //   let moveSquares = getRawMoveSquares(row, col, pieces, otherPieces, isWhiteTurn);
 //   addCastleMoves(moveSquares, row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn);
 //   if (skipCheck) { return moveSquares; }
@@ -23,24 +27,57 @@ export const getMoveSquares = (row, col, pieces, otherPieces, isWhiteTurn) => {
 //   return legalMoveSquares;
 // }
 
-export const getAllPossibleMoveSquares = (row, col, pieces, otherPieces, isWhiteTurn) => {
-  switch (pieces[Board.getSquareNotation(row, col)]) {
-    case Board.PAWN:
-      return getPawnMoveSquares(row, col, pieces, otherPieces, isWhiteTurn);
-    case Board.KNIGHT:
-      return getKnightMoveSquares(row, col, pieces);
-    case Board.BISHOP:
-      return getBishopMoveSquares(row, col, pieces, otherPieces);
-    case Board.ROOK:
-      return getRookMoveSquares(row, col, pieces, otherPieces);
-    case Board.QUEEN:
-      return getQueenMoveSquares(row, col, pieces, otherPieces);
-    case Board.KING:
-      return getKingMoveSquares(row, col, pieces, isWhiteTurn);
+const isSquareInCheck = (square, pieces, otherPieces, isWhiteTurn) => {
+  let foundCheck = false;
+  for (var row = 0; row < Board.BOARD_SIZE; row++) {
+    for (var col = 0; col < Board.BOARD_SIZE; col++) {
+      if (otherPieces[Board.getSquareNotation(row, col)]) {
+        getAllPossibleMoves(row, col, otherPieces, pieces, !isWhiteTurn, true).forEach((moveSquare) => {
+          if (moveSquare == square) {
+            foundCheck = true;
+            return;
+          }
+        });
+      }
+    }
   }
+  return foundCheck;
 }
 
-const getPawnMoveSquares = (row, col, pieces, otherPieces, isWhiteTurn) => {
+// export const isSquareChecked = (square, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn) => {
+//   let foundCheck = false;
+//   for (var row = 0; row < Board.BOARD_SIZE; row++) {
+//     for (var col = 0; col < Board.BOARD_SIZE; col++) {
+//       if (otherPieces[Board.getSquareNotation(row, col)]) {
+//         getMoves(row, col, otherPieces, pieces, hasStartingPositionMoved, !isWhiteTurn, true).forEach((moveSquare) => {
+//           if (moveSquare == square) {
+//             foundCheck = true;
+//             return;
+//           }
+//         });
+//       }
+//     }
+//   }
+//   return foundCheck;
+// }
+
+const getAllPossibleMoves = (row, col, pieces, otherPieces, isWhiteTurn) => {
+  switch (pieces[Board.getSquareNotation(row, col)]) {
+    case Board.PAWN:
+      return getPawnMoves(row, col, pieces, otherPieces, isWhiteTurn);
+    case Board.KNIGHT:
+      return getKnightMoves(row, col, pieces);
+    case Board.BISHOP:
+      return getBishopMoves(row, col, pieces, otherPieces);
+    case Board.ROOK:
+      return getRookMoves(row, col, pieces, otherPieces);
+    case Board.QUEEN:
+      return getQueenMoves(row, col, pieces, otherPieces);
+    case Board.KING:
+      return getKingMoves(row, col, pieces);
+  }
+}
+const getPawnMoves = (row, col, pieces, otherPieces, isWhiteTurn) => {
   let moveSquares = [];
   const nextRow = row + (isWhiteTurn ? 1 : -1);
   if (!pieces[Board.getSquareNotation(nextRow, col)] && !otherPieces[Board.getSquareNotation(nextRow, col)]) {
@@ -59,8 +96,7 @@ const getPawnMoveSquares = (row, col, pieces, otherPieces, isWhiteTurn) => {
   }
   return moveSquares;
 }
-
-const getKnightMoveSquares = (row, col, pieces) => {
+const getKnightMoves = (row, col, pieces) => {
   let moveSquares = [];
   const iter = [-2, -1, 1, 2];
   iter.forEach((i) => {
@@ -76,7 +112,6 @@ const getKnightMoveSquares = (row, col, pieces) => {
   });
   return moveSquares;
 }
-
 const getMoveInDirection = (row, col, pieces, otherPieces, moveSquares, dir) => {
   let k = 1;
   while (row + dir[0]*k >= 0 && row + dir[0]*k < Board.BOARD_SIZE
@@ -87,28 +122,24 @@ const getMoveInDirection = (row, col, pieces, otherPieces, moveSquares, dir) => 
     k++;
   }
 }
-
-const getBishopMoveSquares = (row, col, pieces, otherPieces) => {
+const getBishopMoves = (row, col, pieces, otherPieces) => {
   let moveSquares = [];
   [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(dir =>
     getMoveInDirection(row, col, pieces, otherPieces, moveSquares, dir)
   )
   return moveSquares;
 }
-
-const getRookMoveSquares = (row, col, pieces, otherPieces) => {
+const getRookMoves = (row, col, pieces, otherPieces) => {
   let moveSquares = [];
   [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(dir =>
     getMoveInDirection(row, col, pieces, otherPieces, moveSquares, dir)
   )
   return moveSquares;
 }
-
-const getQueenMoveSquares = (row, col, pieces, otherPieces) => {
-  return [...getBishopMoveSquares(row, col, pieces, otherPieces), ...getRookMoveSquares(row, col, pieces, otherPieces)];
+const getQueenMoves = (row, col, pieces, otherPieces) => {
+  return [...getBishopMoves(row, col, pieces, otherPieces), ...getRookMoves(row, col, pieces, otherPieces)];
 }
-
-const getKingMoveSquares = (row, col, pieces, isWhiteTurn) => {
+const getKingMoves = (row, col, pieces) => {
   let moveSquares = [];
   [-1, 0, 1].forEach((i) => {
     if (row + i >= 0 && row + i < Board.BOARD_SIZE) {
@@ -145,61 +176,44 @@ const getKingMoveSquares = (row, col, pieces, isWhiteTurn) => {
 //   return newHasStartingPositionMoved;
 // }
 
-export const isPlayerChecked = (whitePieces, blackPieces, hasStartingPositionMoved, isWhiteTurn) => {
-  const pieces = isWhiteTurn ? whitePieces : blackPieces;
-  const otherPieces = isWhiteTurn ? blackPieces : whitePieces;
-  let kingSquare = "";
-  Object.keys(pieces).forEach((square) => {
-    if (pieces[square] == Board.KING) {
-      kingSquare = square;
-      return;
-    }
-  });
-  return isSquareChecked(kingSquare, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn);
-}
+// export const isPlayerChecked = (whitePieces, blackPieces, hasStartingPositionMoved, isWhiteTurn) => {
+//   const pieces = isWhiteTurn ? whitePieces : blackPieces;
+//   const otherPieces = isWhiteTurn ? blackPieces : whitePieces;
+//   let kingSquare = "";
+//   Object.keys(pieces).forEach((square) => {
+//     if (pieces[square] == Board.KING) {
+//       kingSquare = square;
+//       return;
+//     }
+//   });
+//   return isSquareChecked(kingSquare, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn);
+// }
 
-export const isSquareChecked = (square, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn) => {
-  let foundCheck = false;
-  for (var row = 0; row < Board.BOARD_SIZE; row++) {
-    for (var col = 0; col < Board.BOARD_SIZE; col++) {
-      if (otherPieces[Board.getSquareNotation(row, col)]) {
-        getMoveSquares(row, col, otherPieces, pieces, hasStartingPositionMoved, !isWhiteTurn, true).forEach((moveSquare) => {
-          if (moveSquare == square) {
-            foundCheck = true;
-            return;
-          }
-        });
-      }
-    }
-  }
-  return foundCheck;
-}
+// export const noLegalMovesExist = (whitePieces, blackPieces, hasStartingPositionMoved, isWhiteTurn) => {
+//   const pieces = isWhiteTurn ? whitePieces : blackPieces;
+//   const otherPieces = isWhiteTurn ? blackPieces : whitePieces;
+//   let foundLegalMove = false;
+//   for (var row = 0; row < Board.BOARD_SIZE; row++) {
+//     for (var col = 0; col < Board.BOARD_SIZE; col++) {
+//       if (pieces[Board.getSquareNotation(row, col)]) {
+//         if (getMoves(row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn).length > 0) {
+//           foundLegalMove = true;
+//           return;
+//         }
+//       }
+//     }
+//   }
+//   return !foundLegalMove;
+// }
 
-export const noLegalMovesExist = (whitePieces, blackPieces, hasStartingPositionMoved, isWhiteTurn) => {
-  const pieces = isWhiteTurn ? whitePieces : blackPieces;
-  const otherPieces = isWhiteTurn ? blackPieces : whitePieces;
-  let foundLegalMove = false;
-  for (var row = 0; row < Board.BOARD_SIZE; row++) {
-    for (var col = 0; col < Board.BOARD_SIZE; col++) {
-      if (pieces[Board.getSquareNotation(row, col)]) {
-        if (getMoveSquares(row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn).length > 0) {
-          foundLegalMove = true;
-          return;
-        }
-      }
-    }
-  }
-  return !foundLegalMove;
-}
-
-const addCastleMoves = (moveSquares, row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn) => {
-  if (pieces[Board.getSquareNotation(row, col)] != Board.KING) { return; }
-  if (isWhiteTurn && Board.getSquareNotation(row, col) == "e1") {
-    if (!hasStartingPositionMoved["e1"] && !hasStartingPositionMoved["h1"]) {
-      if (!pieces["f1"] && !pieces["g1"]) {
-        // TODO: Add check rules
-        moveSquares.push("g1");
-      }
-    }
-  }
-}
+// const addCastleMoves = (moveSquares, row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn) => {
+//   if (pieces[Board.getSquareNotation(row, col)] != Board.KING) { return; }
+//   if (isWhiteTurn && Board.getSquareNotation(row, col) == "e1") {
+//     if (!hasStartingPositionMoved["e1"] && !hasStartingPositionMoved["h1"]) {
+//       if (!pieces["f1"] && !pieces["g1"]) {
+//         // TODO: Add check rules
+//         moveSquares.push("g1");
+//       }
+//     }
+//   }
+// }
