@@ -1,4 +1,4 @@
-import * as Piece from './piece';
+import * as Board from './board';
 
 export const getPaddingStyle = (size) => ({
   padding: size + "px"
@@ -7,32 +7,32 @@ export const getPaddingStyle = (size) => ({
 export const getPieceImage = (piece, isWhite) => {
   if (isWhite) {
     switch(piece) {
-      case Piece.PAWN:
+      case Board.PAWN:
         return require('../../assets/piece_images/pawn_white.png');
-      case Piece.KNIGHT:
+      case Board.KNIGHT:
         return require('../../assets/piece_images/knight_white.png');
-      case Piece.BISHOP:
+      case Board.BISHOP:
         return require('../../assets/piece_images/bishop_white.png');
-      case Piece.ROOK:
+      case Board.ROOK:
         return require('../../assets/piece_images/rook_white.png');
-      case Piece.QUEEN:
+      case Board.QUEEN:
         return require('../../assets/piece_images/queen_white.png');
-      case Piece.KING:
+      case Board.KING:
         return require('../../assets/piece_images/king_white.png');
     }
   } else {
     switch(piece) {
-      case Piece.PAWN:
+      case Board.PAWN:
         return require('../../assets/piece_images/pawn_black.png');
-      case Piece.KNIGHT:
+      case Board.KNIGHT:
         return require('../../assets/piece_images/knight_black.png');
-      case Piece.BISHOP:
+      case Board.BISHOP:
         return require('../../assets/piece_images/bishop_black.png');
-      case Piece.ROOK:
+      case Board.ROOK:
         return require('../../assets/piece_images/rook_black.png');
-      case Piece.QUEEN:
+      case Board.QUEEN:
         return require('../../assets/piece_images/queen_black.png');
-      case Piece.KING:
+      case Board.KING:
         return require('../../assets/piece_images/king_black.png');
     }
   }

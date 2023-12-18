@@ -1,16 +1,17 @@
 import { Col, Container, Row, Table } from 'react-bootstrap';
 
+import * as Game from '../utils/game';
 import { getPaddingStyle } from '../utils/style';
 
 export default function Info(props) {
-  const getResult = () => {
-    let result = "";
-    if (props.isPlayerMated) {
-      result = props.isWhiteTurn ? "Checkmate: Black Wins!" : "Checkmate: White Wins!";
-    }
-    if (props.isPlayerStalemated) { result = "Stalemate..."; }
-    return result;
-  };
+  // const getResult = () => {
+  //   let result = "";
+  //   if (props.isPlayerMated) {
+  //     result = props.isWhiteTurn ? "Checkmate: Black Wins!" : "Checkmate: White Wins!";
+  //   }
+  //   if (props.isPlayerStalemated) { result = "Stalemate..."; }
+  //   return result;
+  // };
   return (
     <Container>
       <Row>
@@ -21,16 +22,16 @@ export default function Info(props) {
           <tbody>
             <tr>
               <td>TURN</td>
-              <td>{props.isWhiteTurn ? "White" : "Black"}</td>
+              <td>{Game.isWhiteTurn(props.game) ? "White" : "Black"}</td>
             </tr>
-            <tr>
+            {/* <tr>
               <td>CHECKED</td>
               <td>{props.isPlayerInCheck ? "Yes" : "No"}</td>
-            </tr>
-            <tr>
+            </tr> */}
+            {/* <tr>
               <td>RESULT</td>
               <td>{getResult()}</td>
-            </tr>
+            </tr> */}
           </tbody>
         </Table>
       </Row>
