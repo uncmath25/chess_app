@@ -1,10 +1,13 @@
 import * as Board from './board';
 
-export const getMoves = (row, col, pieces, otherPieces, isWhiteTurn) => {
-  let moves = getAllPossibleMoves(row, col, pieces, otherPieces, isWhiteTurn)
-  const square = Board.getSquareNotation(row, col);
-  if ((isWhiteTurn && pieces[square] == Board.KING) || (!isWhiteTurn && otherPieces[square] == Board.KING)) {
-    moves = moves.filter((square) => !isSquareInCheck(square, pieces, otherPieces, isWhiteTurn));
+export const getMoves = (board, square) => {
+  const isWhiteTurn = Board.isWhiteTurn(board);
+  const pieces = isWhiteTurn ? Board.getWhitePieces(board) : Board.getBlackPieces(board);
+  const otherPieces =  isWhiteTurn ? Board.getBlackPieces(board) : Board.getWhitePieces(board);
+  const moves = getAllPossibleMoves(square, pieces, otherPieces, isWhiteTurn)
+  if ((isWhiteTurn && pieces[square] == Board.KING)
+      || (!isWhiteTurn && otherPieces[square] == Board.KING)) {
+    return moves.filter((square) => !isSquareInCheck(square, pieces, otherPieces, isWhiteTurn));
   }
   return moves;
 };
@@ -14,7 +17,7 @@ export const getMoves = (row, col, pieces, otherPieces, isWhiteTurn) => {
 //   addCastleMoves(moveSquares, row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn);
 //   if (skipCheck) { return moveSquares; }
 //   let legalMoveSquares = [];
-//   const oldSquare = Board.getSquareNotation(row, col);
+//   const oldSquare = Board.getSquare(row, col);
 //   moveSquares.forEach((newSquare) => {
 //     const updatedPieces = movePiece(pieces, oldSquare, newSquare);
 //     const updatedOtherPieces = removePiece(otherPieces, newSquare);
@@ -31,13 +34,15 @@ const isSquareInCheck = (square, pieces, otherPieces, isWhiteTurn) => {
   let foundCheck = false;
   for (var row = 0; row < Board.BOARD_SIZE; row++) {
     for (var col = 0; col < Board.BOARD_SIZE; col++) {
-      if (otherPieces[Board.getSquareNotation(row, col)]) {
-        getAllPossibleMoves(row, col, otherPieces, pieces, !isWhiteTurn, true).forEach((moveSquare) => {
-          if (moveSquare == square) {
-            foundCheck = true;
-            return;
-          }
-        });
+      const otherSquare = Board.getSquare(row, col);
+      if (otherSquare != null) {
+        getAllPossibleMoves(otherSquare, otherPieces, pieces, !isWhiteTurn)
+          .forEach((moveSquare) => {
+            if (moveSquare == square) {
+              foundCheck = true;
+              return;
+            }
+          });
       }
     }
   }
@@ -48,7 +53,7 @@ const isSquareInCheck = (square, pieces, otherPieces, isWhiteTurn) => {
 //   let foundCheck = false;
 //   for (var row = 0; row < Board.BOARD_SIZE; row++) {
 //     for (var col = 0; col < Board.BOARD_SIZE; col++) {
-//       if (otherPieces[Board.getSquareNotation(row, col)]) {
+//       if (otherPieces[Board.getSquare(row, col)]) {
 //         getMoves(row, col, otherPieces, pieces, hasStartingPositionMoved, !isWhiteTurn, true).forEach((moveSquare) => {
 //           if (moveSquare == square) {
 //             foundCheck = true;
@@ -61,8 +66,9 @@ const isSquareInCheck = (square, pieces, otherPieces, isWhiteTurn) => {
 //   return foundCheck;
 // }
 
-const getAllPossibleMoves = (row, col, pieces, otherPieces, isWhiteTurn) => {
-  switch (pieces[Board.getSquareNotation(row, col)]) {
+const getAllPossibleMoves = (square, pieces, otherPieces, isWhiteTurn) => {
+  const [row, col] = Board.getSquareCoords(square);
+  switch (pieces[Board.getSquare(row, col)]) {
     case Board.PAWN:
       return getPawnMoves(row, col, pieces, otherPieces, isWhiteTurn);
     case Board.KNIGHT:
@@ -80,19 +86,19 @@ const getAllPossibleMoves = (row, col, pieces, otherPieces, isWhiteTurn) => {
 const getPawnMoves = (row, col, pieces, otherPieces, isWhiteTurn) => {
   let moveSquares = [];
   const nextRow = row + (isWhiteTurn ? 1 : -1);
-  if (!pieces[Board.getSquareNotation(nextRow, col)] && !otherPieces[Board.getSquareNotation(nextRow, col)]) {
-    moveSquares.push(Board.getSquareNotation(nextRow, col));
+  if (!pieces[Board.getSquare(nextRow, col)] && !otherPieces[Board.getSquare(nextRow, col)]) {
+    moveSquares.push(Board.getSquare(nextRow, col));
   }
   const startRow = isWhiteTurn ? 1 : Board.BOARD_SIZE - 2
   const farRow = row + (isWhiteTurn ? 2 : -2);
-  if (row == startRow && !pieces[Board.getSquareNotation(farRow, col)] && !otherPieces[Board.getSquareNotation(farRow, col)]) {
-    moveSquares.push(Board.getSquareNotation(farRow, col));
+  if (row == startRow && !pieces[Board.getSquare(farRow, col)] && !otherPieces[Board.getSquare(farRow, col)]) {
+    moveSquares.push(Board.getSquare(farRow, col));
   }
-  if (col >= 1 && otherPieces[Board.getSquareNotation(nextRow, col - 1)]) {
-    moveSquares.push(Board.getSquareNotation(nextRow, col - 1));
+  if (col >= 1 && otherPieces[Board.getSquare(nextRow, col - 1)]) {
+    moveSquares.push(Board.getSquare(nextRow, col - 1));
   }
-  if (col <= Board.BOARD_SIZE - 2 && otherPieces[Board.getSquareNotation(nextRow, col + 1)]) {
-    moveSquares.push(Board.getSquareNotation(nextRow, col + 1));
+  if (col <= Board.BOARD_SIZE - 2 && otherPieces[Board.getSquare(nextRow, col + 1)]) {
+    moveSquares.push(Board.getSquare(nextRow, col + 1));
   }
   return moveSquares;
 }
@@ -103,8 +109,8 @@ const getKnightMoves = (row, col, pieces) => {
     if (row + i >= 0 && row + i < Board.BOARD_SIZE) {
       [-(3 - Math.abs(i)), (3 - Math.abs(i))].forEach((j) => {
         if (col + j >= 0 && col + j < Board.BOARD_SIZE) {
-          if (!pieces[Board.getSquareNotation(row + i, col + j)]) {
-            moveSquares.push(Board.getSquareNotation(row + i, col + j));
+          if (!pieces[Board.getSquare(row + i, col + j)]) {
+            moveSquares.push(Board.getSquare(row + i, col + j));
           }
         }
       });
@@ -116,9 +122,9 @@ const getMoveInDirection = (row, col, pieces, otherPieces, moveSquares, dir) => 
   let k = 1;
   while (row + dir[0]*k >= 0 && row + dir[0]*k < Board.BOARD_SIZE
     && col + dir[1]*k >= 0 && col + dir[1]*k < Board.BOARD_SIZE
-    && !pieces[Board.getSquareNotation(row + dir[0]*k, col + dir[1]*k)]) {
-    moveSquares.push(Board.getSquareNotation(row + dir[0]*k, col + dir[1]*k));
-    if (otherPieces[Board.getSquareNotation(row + dir[0]*k, col + dir[1]*k)]) { break; }
+    && !pieces[Board.getSquare(row + dir[0]*k, col + dir[1]*k)]) {
+    moveSquares.push(Board.getSquare(row + dir[0]*k, col + dir[1]*k));
+    if (otherPieces[Board.getSquare(row + dir[0]*k, col + dir[1]*k)]) { break; }
     k++;
   }
 }
@@ -145,8 +151,8 @@ const getKingMoves = (row, col, pieces) => {
     if (row + i >= 0 && row + i < Board.BOARD_SIZE) {
       [-1, 0, 1].forEach((j) => {
         if (col + j >= 0 && col + j < Board.BOARD_SIZE) {
-          if (!pieces[Board.getSquareNotation(row + i, col + j)]) {
-            moveSquares.push(Board.getSquareNotation(row + i, col + j));
+          if (!pieces[Board.getSquare(row + i, col + j)]) {
+            moveSquares.push(Board.getSquare(row + i, col + j));
           }
         }
       });
@@ -195,7 +201,7 @@ const getKingMoves = (row, col, pieces) => {
 //   let foundLegalMove = false;
 //   for (var row = 0; row < Board.BOARD_SIZE; row++) {
 //     for (var col = 0; col < Board.BOARD_SIZE; col++) {
-//       if (pieces[Board.getSquareNotation(row, col)]) {
+//       if (pieces[Board.getSquare(row, col)]) {
 //         if (getMoves(row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn).length > 0) {
 //           foundLegalMove = true;
 //           return;
@@ -207,8 +213,8 @@ const getKingMoves = (row, col, pieces) => {
 // }
 
 // const addCastleMoves = (moveSquares, row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn) => {
-//   if (pieces[Board.getSquareNotation(row, col)] != Board.KING) { return; }
-//   if (isWhiteTurn && Board.getSquareNotation(row, col) == "e1") {
+//   if (pieces[Board.getSquare(row, col)] != Board.KING) { return; }
+//   if (isWhiteTurn && Board.getSquare(row, col) == "e1") {
 //     if (!hasStartingPositionMoved["e1"] && !hasStartingPositionMoved["h1"]) {
 //       if (!pieces["f1"] && !pieces["g1"]) {
 //         // TODO: Add check rules

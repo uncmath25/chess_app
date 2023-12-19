@@ -1,6 +1,6 @@
 import { Col, Container, Row, Table } from 'react-bootstrap';
 
-import * as Game from '../utils/game';
+import * as BoardModel from '../models/board';
 import { getPaddingStyle } from '../utils/style';
 
 export default function Info(props) {
@@ -22,7 +22,7 @@ export default function Info(props) {
           <tbody>
             <tr>
               <td>TURN</td>
-              <td>{Game.isWhiteTurn(props.game) ? "White" : "Black"}</td>
+              <td>{BoardModel.isWhiteTurn(props.board) ? "White" : "Black"}</td>
             </tr>
             {/* <tr>
               <td>CHECKED</td>

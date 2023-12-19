@@ -1,4 +1,4 @@
-import * as Board from './board';
+import * as Board from '../models/board';
 
 export const getPaddingStyle = (size) => ({
   padding: size + "px"
