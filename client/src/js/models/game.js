@@ -67,7 +67,8 @@ export const move = (game, newSquare) => {
   Board.move(getBoard(game), isWhiteTurn(game), getSelectedSquare(game), newSquare);
   endTurn(game);
   if (getGameMode(game) == GAME_MODE_AI) {
-    Board.move(getBoard(game), isWhiteTurn(game), ...AI.getMove(getAI(game), getBoard(game)));
+    const [oldSquare, newSquare] = AI.getMove(getAI(game), getBoard(game), isWhiteTurn(game));
+    Board.move(getBoard(game), isWhiteTurn(game), oldSquare, newSquare);
     endTurn(game);
   }
   resetUserSelection(game);

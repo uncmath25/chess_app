@@ -36,6 +36,7 @@ export default function Board(props) {
       const image = Style.getPieceImage(Game.getBlackPiece(props.game, square), false);
       return (<img src={image} width={IMAGE_SIZE_PIXELS} />);
     }
+    return (<img width={IMAGE_SIZE_PIXELS} />);
   };
   const onSquareClick = (row, col) => {
     if (Game.isPaused(props.game)) { return; }

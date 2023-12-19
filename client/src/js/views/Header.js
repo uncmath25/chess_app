@@ -7,8 +7,8 @@ import { getPaddingStyle } from '../utils/style';
 
 const LOGO = require('../../assets/logo.ico');
 const TITLE = 'Chess App';
-export const DEFAULT_GAME_MODE = Game.GAME_MODE_SANDBOX;
-// export const DEFAULT_GAME_MODE = Game.GAME_MODE_AI;
+// export const DEFAULT_GAME_MODE = Game.GAME_MODE_SANDBOX;
+export const DEFAULT_GAME_MODE = Game.GAME_MODE_AI;
 export const IS_PLAYER_WHITE = true;
 
 export default function Header(props) {

@@ -11,60 +11,6 @@ export const getMoves = (board, isWhiteTurn, square) => {
   return moves;
 };
 
-// export const getMoves = (row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn, skipCheck=false) => {
-//   let moveSquares = getRawMoveSquares(row, col, pieces, otherPieces, isWhiteTurn);
-//   addCastleMoves(moveSquares, row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn);
-//   if (skipCheck) { return moveSquares; }
-//   let legalMoveSquares = [];
-//   const oldSquare = Board.getSquare(row, col);
-//   moveSquares.forEach((newSquare) => {
-//     const updatedPieces = movePiece(pieces, oldSquare, newSquare);
-//     const updatedOtherPieces = removePiece(otherPieces, newSquare);
-//     const whitePieces = isWhiteTurn ? updatedPieces : updatedOtherPieces;
-//     const blackPieces = isWhiteTurn ? updatedOtherPieces : updatedPieces;
-//     if (!isPlayerChecked(whitePieces, blackPieces, hasStartingPositionMoved, isWhiteTurn)) {
-//       legalMoveSquares.push(newSquare);
-//     }
-//   });
-//   return legalMoveSquares;
-// }
-
-const isSquareInCheck = (pieces, otherPieces, isWhiteTurn, square) => {
-  let foundCheck = false;
-  for (var row = 0; row < Board.BOARD_SIZE; row++) {
-    for (var col = 0; col < Board.BOARD_SIZE; col++) {
-      const otherSquare = Board.getSquare(row, col);
-      if (otherPieces[otherSquare] != null) {
-        getAllPossibleMoves(otherPieces, pieces, !isWhiteTurn, otherSquare)
-          .forEach((moveSquare) => {
-            if (moveSquare == square) {
-              foundCheck = true;
-              return;
-            }
-          });
-      }
-    }
-  }
-  return foundCheck;
-}
-
-// export const isSquareChecked = (square, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn) => {
-//   let foundCheck = false;
-//   for (var row = 0; row < Board.BOARD_SIZE; row++) {
-//     for (var col = 0; col < Board.BOARD_SIZE; col++) {
-//       if (otherPieces[Board.getSquare(row, col)]) {
-//         getMoves(row, col, otherPieces, pieces, hasStartingPositionMoved, !isWhiteTurn, true).forEach((moveSquare) => {
-//           if (moveSquare == square) {
-//             foundCheck = true;
-//             return;
-//           }
-//         });
-//       }
-//     }
-//   }
-//   return foundCheck;
-// }
-
 const getAllPossibleMoves = (pieces, otherPieces, isWhiteTurn, square) => {
   const [row, col] = Board.getSquareCoords(square);
   switch (pieces[square]) {
@@ -158,6 +104,25 @@ const getKingMoves = (pieces, row, col) => {
     }
   });
   return moveSquares;
+}
+
+const isSquareInCheck = (pieces, otherPieces, isWhiteTurn, square) => {
+  let foundCheck = false;
+  for (var row = 0; row < Board.BOARD_SIZE; row++) {
+    for (var col = 0; col < Board.BOARD_SIZE; col++) {
+      const otherSquare = Board.getSquare(row, col);
+      if (otherPieces[otherSquare] != null) {
+        getAllPossibleMoves(otherPieces, pieces, !isWhiteTurn, otherSquare)
+          .forEach((moveSquare) => {
+            if (moveSquare == square) {
+              foundCheck = true;
+              return;
+            }
+          });
+      }
+    }
+  }
+  return foundCheck;
 }
 
 // HARD_CODED_RULE
