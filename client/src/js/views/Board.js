@@ -1,8 +1,7 @@
 import { Col, Container, Row, Table } from 'react-bootstrap';
 
-import * as BoardModel from '../models/board';
-import * as UserModel from '../models/user';
-import * as Move from '../models/move';
+import { BOARD_SIZE, getSquare } from '../models/board';
+import * as Game from '../models/game';
 import * as Style from '../utils/style';
 
 const IMAGE_SIZE_PIXELS = 55;
@@ -18,52 +17,41 @@ export default function Board(props) {
   //   }
   // });
   const getRowColIter = (isRow, isWhiteTurn) => {
-    const iter = Array.from(Array(BoardModel.BOARD_SIZE).keys());
+    const iter = Array.from(Array(BOARD_SIZE).keys());
     return ((isRow && !isWhiteTurn) || (!isRow && isWhiteTurn)) ? iter : [...iter].reverse();
   };
   const getTileBackgroundStyle = (row, col) => {
-    const square = BoardModel.getSquare(row, col);
-    const isSelected = UserModel.isSquareSelected(props.user, square);
-    const isMovePossible = UserModel.isMovePossible(props.user, square);
+    const square = getSquare(row, col);
+    const isSelected = Game.isSquareSelected(props.game, square);
+    const isMovePossible = Game.isMovePossible(props.game, square);
     return Style.getTileBackgroundStyle(row, col, isSelected, isMovePossible);
   };
   const renderPiece = (row, col) => {
-    const square = BoardModel.getSquare(row, col);
-    if (BoardModel.isWhitePiece(props.board, square)) {
-      const image = Style.getPieceImage(BoardModel.getWhitePiece(props.board, square), true);
+    const square = getSquare(row, col);
+    if (Game.isWhitePiece(props.game, square)) {
+      const image = Style.getPieceImage(Game.getWhitePiece(props.game, square), true);
       return (<img src={image} width={IMAGE_SIZE_PIXELS} />);
     }
-    if (BoardModel.isBlackPiece(props.board, square)) {
-      const image = Style.getPieceImage(BoardModel.getBlackPiece(props.board, square), false);
+    if (Game.isBlackPiece(props.game, square)) {
+      const image = Style.getPieceImage(Game.getBlackPiece(props.game, square), false);
       return (<img src={image} width={IMAGE_SIZE_PIXELS} />);
     }
   };
   const onSquareClick = (row, col) => {
-    if (UserModel.isGameOver(props.board)) { return; }
-    const square = BoardModel.getSquare(row, col);
-    if (UserModel.isSelected(props.user)) {
-      if (UserModel.isMovePossible(props.user, square)) { move(square); }
-      updateUserSelection("", []);
+    if (Game.isPaused(props.game)) { return; }
+    const square = getSquare(row, col);
+    let newGame = Object.assign({}, props.game);
+    if (Game.isSelected(props.game)) {
+      if (Game.isMovePossible(props.game, square)) {
+        Game.move(newGame, square);
+      }
+      Game.resetUserSelection(newGame);
     } else {
-      if (isSelectionPossible(square)) {
-        updateUserSelection(square, Move.getMoves(props.board, square));
+      if (Game.isSelectionPossible(props.game, square)) {
+        Game.updateUserSelection(newGame, square);
       }
     }
-  };
-  const move = (newSquare) => {
-    let newBoard = Object.assign({}, props.board);
-    BoardModel.move(newBoard, UserModel.getSelectedSquare(props.user), newSquare);
-    props.setBoard(newBoard);
-  };
-  const isSelectionPossible = (square) => {
-    return (BoardModel.isWhiteTurn(props.board) && BoardModel.isWhitePiece(props.board, square)) ||
-    (!BoardModel.isWhiteTurn(props.board) && BoardModel.isBlackPiece(props.board, square))
-  };
-  const updateUserSelection = (square, possibleMoves) => {
-    const newUser = Object.assign({}, props.user)
-    UserModel.setSelectedSquare(newUser, square);
-    UserModel.setPossibleMoves(newUser, possibleMoves);
-    props.setUser(newUser);
+    props.setGame(newGame);
   };
   return (
     <Container>
@@ -73,9 +61,9 @@ export default function Board(props) {
       <Row>
         <Table bordered >
           <tbody>
-            {getRowColIter(true, UserModel.isViewWhite(props.user, props.board)).map(row =>
+            {getRowColIter(true, Game.isViewWhite(props.game)).map(row =>
               <tr key={row} >
-                {getRowColIter(false, UserModel.isViewWhite(props.user, props.board)).map(col =>
+                {getRowColIter(false, Game.isViewWhite(props.game)).map(col =>
                   <td key={col} style={getTileBackgroundStyle(row, col)}>
                     <div style={{aspectRatio: 1 / 1}} onClick={() => onSquareClick(row, col)}>
                       {renderPiece(row, col)}

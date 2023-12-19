@@ -2,28 +2,25 @@ import { useState, useEffect } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 
 import Board from './views/Board';
-import Header, { IS_PLAYER_WHITE_DEFAULT } from './views/Header';
+import Header, { DEFAULT_GAME_MODE, IS_PLAYER_WHITE } from './views/Header';
 import Info from './views/Info';
-import * as BoardModel from './models/board';
-import * as UserModel from './models/user';
+import * as Game from './models/game';
 
 export default function App() {
-  const [board, setBoard] = useState(BoardModel.init());
-  const [user, setUser] = useState(UserModel.init(IS_PLAYER_WHITE_DEFAULT));
+  const [game, setGame] = useState(Game.init(DEFAULT_GAME_MODE, IS_PLAYER_WHITE));
   // const [testMessage, setTestMessage] = useState("");
-  useEffect(() => {console.log(board); console.log(user)});
+  useEffect(() => {console.log(game)});
   return (
     <div>
-      <Header setBoard={setBoard} setUser={setUser} />
+      <Header setGame={setGame} />
       <Container>
         <Row>
           <Col sm={12} md={9} lg={{ span: 7, offset: 1 }} xl={{ span: 5, offset: 2 }}>
-            <Board board={board} setBoard={setBoard}
-                   user={user} setUser={setUser} />
+            <Board game={game} setGame={setGame} />
             {/* {testMessage} */}
           </Col>
           <Col sm={12} md={12} lg={{ span: 3, offset: 1 }} xl={{ span: 3, offset: 2 }}>
-            <Info board={board} />
+            <Info game={game} />
           </Col>
         </Row>
       </Container>

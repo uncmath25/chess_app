@@ -1,13 +1,12 @@
 import * as Board from './board';
 
-export const getMoves = (board, square) => {
-  const isWhiteTurn = Board.isWhiteTurn(board);
+export const getMoves = (board, isWhiteTurn, square) => {
   const pieces = isWhiteTurn ? Board.getWhitePieces(board) : Board.getBlackPieces(board);
   const otherPieces =  isWhiteTurn ? Board.getBlackPieces(board) : Board.getWhitePieces(board);
-  const moves = getAllPossibleMoves(square, pieces, otherPieces, isWhiteTurn)
+  const moves = getAllPossibleMoves(pieces, otherPieces, isWhiteTurn, square)
   if ((isWhiteTurn && pieces[square] == Board.KING)
       || (!isWhiteTurn && otherPieces[square] == Board.KING)) {
-    return moves.filter((square) => !isSquareInCheck(square, pieces, otherPieces, isWhiteTurn));
+    return moves.filter((square) => !isSquareInCheck(pieces, otherPieces, isWhiteTurn, square));
   }
   return moves;
 };
@@ -30,13 +29,13 @@ export const getMoves = (board, square) => {
 //   return legalMoveSquares;
 // }
 
-const isSquareInCheck = (square, pieces, otherPieces, isWhiteTurn) => {
+const isSquareInCheck = (pieces, otherPieces, isWhiteTurn, square) => {
   let foundCheck = false;
   for (var row = 0; row < Board.BOARD_SIZE; row++) {
     for (var col = 0; col < Board.BOARD_SIZE; col++) {
       const otherSquare = Board.getSquare(row, col);
-      if (otherSquare != null) {
-        getAllPossibleMoves(otherSquare, otherPieces, pieces, !isWhiteTurn)
+      if (otherPieces[otherSquare] != null) {
+        getAllPossibleMoves(otherPieces, pieces, !isWhiteTurn, otherSquare)
           .forEach((moveSquare) => {
             if (moveSquare == square) {
               foundCheck = true;
@@ -66,24 +65,24 @@ const isSquareInCheck = (square, pieces, otherPieces, isWhiteTurn) => {
 //   return foundCheck;
 // }
 
-const getAllPossibleMoves = (square, pieces, otherPieces, isWhiteTurn) => {
+const getAllPossibleMoves = (pieces, otherPieces, isWhiteTurn, square) => {
   const [row, col] = Board.getSquareCoords(square);
-  switch (pieces[Board.getSquare(row, col)]) {
+  switch (pieces[square]) {
     case Board.PAWN:
-      return getPawnMoves(row, col, pieces, otherPieces, isWhiteTurn);
+      return getPawnMoves(pieces, otherPieces, isWhiteTurn, row, col);
     case Board.KNIGHT:
-      return getKnightMoves(row, col, pieces);
+      return getKnightMoves(pieces, row, col);
     case Board.BISHOP:
-      return getBishopMoves(row, col, pieces, otherPieces);
+      return getBishopMoves(pieces, otherPieces, row, col);
     case Board.ROOK:
-      return getRookMoves(row, col, pieces, otherPieces);
+      return getRookMoves(pieces, otherPieces, row, col);
     case Board.QUEEN:
-      return getQueenMoves(row, col, pieces, otherPieces);
+      return getQueenMoves(pieces, otherPieces, row, col);
     case Board.KING:
-      return getKingMoves(row, col, pieces);
+      return getKingMoves(pieces, row, col);
   }
 }
-const getPawnMoves = (row, col, pieces, otherPieces, isWhiteTurn) => {
+const getPawnMoves = (pieces, otherPieces, isWhiteTurn, row, col) => {
   let moveSquares = [];
   const nextRow = row + (isWhiteTurn ? 1 : -1);
   if (!pieces[Board.getSquare(nextRow, col)] && !otherPieces[Board.getSquare(nextRow, col)]) {
@@ -102,7 +101,7 @@ const getPawnMoves = (row, col, pieces, otherPieces, isWhiteTurn) => {
   }
   return moveSquares;
 }
-const getKnightMoves = (row, col, pieces) => {
+const getKnightMoves = (pieces, row, col) => {
   let moveSquares = [];
   const iter = [-2, -1, 1, 2];
   iter.forEach((i) => {
@@ -118,7 +117,7 @@ const getKnightMoves = (row, col, pieces) => {
   });
   return moveSquares;
 }
-const getMoveInDirection = (row, col, pieces, otherPieces, moveSquares, dir) => {
+const getMoveInDirection = (pieces, otherPieces, moveSquares, dir, row, col) => {
   let k = 1;
   while (row + dir[0]*k >= 0 && row + dir[0]*k < Board.BOARD_SIZE
     && col + dir[1]*k >= 0 && col + dir[1]*k < Board.BOARD_SIZE
@@ -128,24 +127,24 @@ const getMoveInDirection = (row, col, pieces, otherPieces, moveSquares, dir) => 
     k++;
   }
 }
-const getBishopMoves = (row, col, pieces, otherPieces) => {
+const getBishopMoves = (pieces, otherPieces, row, col) => {
   let moveSquares = [];
   [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(dir =>
-    getMoveInDirection(row, col, pieces, otherPieces, moveSquares, dir)
+    getMoveInDirection(pieces, otherPieces, moveSquares, dir, row, col)
   )
   return moveSquares;
 }
-const getRookMoves = (row, col, pieces, otherPieces) => {
+const getRookMoves = (pieces, otherPieces, row, col) => {
   let moveSquares = [];
   [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(dir =>
-    getMoveInDirection(row, col, pieces, otherPieces, moveSquares, dir)
+    getMoveInDirection(pieces, otherPieces, moveSquares, dir, row, col)
   )
   return moveSquares;
 }
-const getQueenMoves = (row, col, pieces, otherPieces) => {
-  return [...getBishopMoves(row, col, pieces, otherPieces), ...getRookMoves(row, col, pieces, otherPieces)];
+const getQueenMoves = (pieces, otherPieces, row, col) => {
+  return [...getBishopMoves(pieces, otherPieces, row, col), ...getRookMoves(pieces, otherPieces, row, col)];
 }
-const getKingMoves = (row, col, pieces) => {
+const getKingMoves = (pieces, row, col) => {
   let moveSquares = [];
   [-1, 0, 1].forEach((i) => {
     if (row + i >= 0 && row + i < Board.BOARD_SIZE) {

@@ -2,25 +2,20 @@ import { useState } from 'react';
 import { Button, Form, Navbar, Nav } from 'react-bootstrap';
 
 // import { getResource } from '../utils/apiClient';
-import * as BoardModel from '../models/board';
-import * as UserModel from '../models/user';
+import * as Game from '../models/game';
 import { getPaddingStyle } from '../utils/style';
 
 const LOGO = require('../../assets/logo.ico');
 const TITLE = 'Chess App';
-const GAME_MODE_SANDBOX = "SANDBOX";
-const GAME_MODE_SWITCH = "SWITCH";
-const GAME_MODE_AI = "AI";
-const GAME_MODES = [GAME_MODE_SANDBOX, GAME_MODE_SWITCH, GAME_MODE_AI];
-export const DEFAULT_GAME_MODE = GAME_MODE_SANDBOX;
-export const IS_PLAYER_WHITE_DEFAULT = true;
+export const DEFAULT_GAME_MODE = Game.GAME_MODE_SANDBOX;
+// export const DEFAULT_GAME_MODE = Game.GAME_MODE_AI;
+export const IS_PLAYER_WHITE = true;
 
 export default function Header(props) {
   const [gameMode, setGameMode] = useState(DEFAULT_GAME_MODE);
-  const [isPlayerWhite, setIsPlayerWhite] = useState(IS_PLAYER_WHITE_DEFAULT);
+  const [isPlayerWhite, setIsPlayerWhite] = useState(IS_PLAYER_WHITE);
   const startNewGame = () => {
-    props.setBoard(BoardModel.init());
-    props.setUser(UserModel.init(isPlayerWhite, gameMode == GAME_MODE_SWITCH));
+    props.setGame(Game.init(gameMode, isPlayerWhite));
   };
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
@@ -41,8 +36,8 @@ export default function Header(props) {
       <Navbar.Brand>
         <Form className='d-flex'>
           <Form.Select value={gameMode} onChange={(event) => setGameMode(event.target.value) } >
-            {Array.from(Array(GAME_MODES.length).keys()).map(
-              i => <option key={i}>{GAME_MODES[i]}</option>
+            {Array.from(Array(Game.GAME_MODES.length).keys()).map(
+              i => <option key={i}>{Game.GAME_MODES[i]}</option>
             )}
           </Form.Select>
           <span style={getPaddingStyle(5)} />

@@ -13,20 +13,10 @@ export const getSquareCoords = (square) => [parseInt(square[1] - 1), COLS.indexO
 
 const KEY_WHITE_PIECES = "WHITE_PIECES";
 const KEY_BLACK_PIECES = "BLACK_PIECES";
-const KEY_IS_WHITE_TURN = "IS_WHITE_TURN";
-
-export const isWhitePiece = (board, square) => board[KEY_WHITE_PIECES][square] != null;
-export const getWhitePiece = (board, square) => board[KEY_WHITE_PIECES][square];
-export const getWhitePieces = (board) => board[KEY_WHITE_PIECES];
-export const isBlackPiece = (board, square) => board[KEY_BLACK_PIECES][square] != null;
-export const getBlackPiece = (board, square) => board[KEY_BLACK_PIECES][square];
-export const getBlackPieces = (board) => board[KEY_BLACK_PIECES];
-export const isWhiteTurn = (board) => board[KEY_IS_WHITE_TURN];
 
 export const init = () => ({
   [KEY_WHITE_PIECES]: initWhitePieces(),
-  [KEY_BLACK_PIECES]: initBlackPieces(),
-  [KEY_IS_WHITE_TURN]: true,
+  [KEY_BLACK_PIECES]: initBlackPieces()
 });
 const initWhitePieces = () => {
   const boardInfo = {};
@@ -55,8 +45,15 @@ const initBlackPieces = () => {
   return boardInfo;
 };
 
-export const move = (board, oldSquare, newSquare) => {
-  if (isWhiteTurn(board)) {
+export const isWhitePiece = (board, square) => board[KEY_WHITE_PIECES][square] != null;
+export const getWhitePiece = (board, square) => board[KEY_WHITE_PIECES][square];
+export const getWhitePieces = (board) => board[KEY_WHITE_PIECES];
+export const isBlackPiece = (board, square) => board[KEY_BLACK_PIECES][square] != null;
+export const getBlackPiece = (board, square) => board[KEY_BLACK_PIECES][square];
+export const getBlackPieces = (board) => board[KEY_BLACK_PIECES];
+
+export const move = (board, isWhiteTurn, oldSquare, newSquare) => {
+  if (isWhiteTurn) {
     addWhitePiece(board, newSquare, getWhitePiece(board, oldSquare));
     removeWhitePiece(board, oldSquare);
     if (isBlackPiece(board, newSquare)) { removeBlackPiece(board, newSquare); }
@@ -65,7 +62,6 @@ export const move = (board, oldSquare, newSquare) => {
     removeBlackPiece(board, oldSquare);
     if (isWhitePiece(board, newSquare)) { removeWhitePiece(board, newSquare); }
   }
-  board[KEY_IS_WHITE_TURN] = !board[KEY_IS_WHITE_TURN];
   // TODO: Handle special moves - promotion, castle, en passant
 };
 const addWhitePiece = (board, square, piece) => { getWhitePieces(board)[square] = piece; };
