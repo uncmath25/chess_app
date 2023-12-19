@@ -45,6 +45,11 @@ const initBlackPieces = () => {
   return boardInfo;
 };
 
+export const copy = (board) => ({
+  [KEY_WHITE_PIECES]: {...getWhitePieces(board)},
+  [KEY_BLACK_PIECES]: {...getBlackPieces(board)}
+});
+
 export const isWhitePiece = (board, square) => board[KEY_WHITE_PIECES][square] != null;
 export const getWhitePiece = (board, square) => board[KEY_WHITE_PIECES][square];
 export const getWhitePieces = (board) => board[KEY_WHITE_PIECES];
@@ -57,12 +62,14 @@ export const move = (board, isWhiteTurn, oldSquare, newSquare) => {
     addWhitePiece(board, newSquare, getWhitePiece(board, oldSquare));
     removeWhitePiece(board, oldSquare);
     if (isBlackPiece(board, newSquare)) { removeBlackPiece(board, newSquare); }
+    handlePawnPromotion(getWhitePieces(board), newSquare);
   } else {
     addBlackPiece(board, newSquare, getBlackPiece(board, oldSquare));
     removeBlackPiece(board, oldSquare);
     if (isWhitePiece(board, newSquare)) { removeWhitePiece(board, newSquare); }
+    handlePawnPromotion(getBlackPieces(board), newSquare);
   }
-  // TODO: Handle special moves - promotion, castle, en passant
+  // TODO: Handle special moves - castle, en passant
 };
 const addWhitePiece = (board, square, piece) => { getWhitePieces(board)[square] = piece; };
 const removeWhitePiece = (board, square) => { delete getWhitePieces(board)[square]; };
@@ -70,11 +77,12 @@ const addBlackPiece = (board, square, piece) => { getBlackPieces(board)[square] 
 const removeBlackPiece = (board, square) => { delete getBlackPieces(board)[square]; };
 
 // TODO: Update pawn promotion besides just queen
-// const handlePawnPromotion = (pieces, oldSquare, newSquare) => {
-//   if (pieces[oldSquare] == PAWN && (newSquare[1] == 1 || newSquare[1] == Game.BOARD_SIZE)) {
-//     pieces[newSquare] = QUEEN;
-//   }
-// }
+const handlePawnPromotion = (pieces, newSquare) => {
+  const row = getSquareCoords(newSquare)[0];
+  if (pieces[newSquare] == PAWN && (row == 0 || row == BOARD_SIZE - 1)) {
+    pieces[newSquare] = QUEEN;
+  }
+}
 
 // const handleCastles = (pieces, oldSquare, newSquare) => {
 //   [1, Game.BOARD_SIZE].forEach((row) => {

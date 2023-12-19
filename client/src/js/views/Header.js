@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { Button, Form, Navbar, Nav } from 'react-bootstrap';
 
-// import { getResource } from '../utils/apiClient';
 import * as Game from '../models/game';
 import { getPaddingStyle } from '../utils/style';
 
 const LOGO = require('../../assets/logo.ico');
 const TITLE = 'Chess App';
-// export const DEFAULT_GAME_MODE = Game.GAME_MODE_SANDBOX;
-export const DEFAULT_GAME_MODE = Game.GAME_MODE_AI;
+export const DEFAULT_GAME_MODE = Game.GAME_MODE_SANDBOX;
+// export const DEFAULT_GAME_MODE = Game.GAME_MODE_AI;
 export const IS_PLAYER_WHITE = true;
 
 export default function Header(props) {
@@ -48,9 +47,6 @@ export default function Header(props) {
             New Game
           </Button>
         </Form>
-        {/* <Button variant="danger" onClick={() => getResource("test").then(data => props.setTestMessage(data.message))}>
-          Test API
-        </Button> */}
       </Navbar.Brand>
     </Navbar>
   );

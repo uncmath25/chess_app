@@ -1,18 +1,36 @@
 import * as Board from './board';
 
 export const getMoves = (board, isWhiteTurn, square) => {
+  const moves = getAllPossibleMoves(board, isWhiteTurn, square)
   const pieces = isWhiteTurn ? Board.getWhitePieces(board) : Board.getBlackPieces(board);
-  const otherPieces =  isWhiteTurn ? Board.getBlackPieces(board) : Board.getWhitePieces(board);
-  const moves = getAllPossibleMoves(pieces, otherPieces, isWhiteTurn, square)
-  if ((isWhiteTurn && pieces[square] == Board.KING)
-      || (!isWhiteTurn && otherPieces[square] == Board.KING)) {
-    return moves.filter((square) => !isSquareInCheck(pieces, otherPieces, isWhiteTurn, square));
-  }
-  return moves;
+  const kingSquare = pieces[square] == Board.KING ? "" : getKingSquare(board, isWhiteTurn);
+  return moves.filter((move) => isLegalMove(board, isWhiteTurn, square, move, kingSquare));
 };
 
-const getAllPossibleMoves = (pieces, otherPieces, isWhiteTurn, square) => {
+export const isLegalMove = (board, isWhiteTurn, oldSquare, newSquare, oldKingSquare) => {
+  const testBoard = Board.copy(board);
+  const kingSquare = (oldKingSquare == "") ? newSquare : oldKingSquare;
+  Board.move(testBoard, isWhiteTurn, oldSquare, newSquare);
+  return !canSquareBeAttacked(testBoard, isWhiteTurn, kingSquare);
+}
+
+const getKingSquare = (board, isWhiteTurn) => {
+  const pieces = isWhiteTurn ? Board.getWhitePieces(board) : Board.getBlackPieces(board);
+  let kingSquare = "";
+  Object.keys(pieces).forEach((square) => {
+    if (pieces[square] == Board.KING) {
+      kingSquare = square;
+      return;
+    }
+  });
+  if (kingSquare == "") { console.log("King Square could not be found!") }
+  return kingSquare;
+}
+
+const getAllPossibleMoves = (board, isWhiteTurn, square) => {
   const [row, col] = Board.getSquareCoords(square);
+  const pieces = isWhiteTurn ? Board.getWhitePieces(board) : Board.getBlackPieces(board);
+  const otherPieces =  isWhiteTurn ? Board.getBlackPieces(board) : Board.getWhitePieces(board);
   switch (pieces[square]) {
     case Board.PAWN:
       return getPawnMoves(pieces, otherPieces, isWhiteTurn, row, col);
@@ -106,23 +124,36 @@ const getKingMoves = (pieces, row, col) => {
   return moveSquares;
 }
 
-const isSquareInCheck = (pieces, otherPieces, isWhiteTurn, square) => {
+export const isPlayerChecked = (board, isWhiteTurn) => {
+  return canSquareBeAttacked(board, isWhiteTurn, getKingSquare(board, isWhiteTurn));
+}
+
+export const canSquareBeAttacked = (board, isWhiteTurn, square) => {
+  const otherPieces = isWhiteTurn ? Board.getBlackPieces(board) : Board.getWhitePieces(board);
   let foundCheck = false;
-  for (var row = 0; row < Board.BOARD_SIZE; row++) {
-    for (var col = 0; col < Board.BOARD_SIZE; col++) {
-      const otherSquare = Board.getSquare(row, col);
-      if (otherPieces[otherSquare] != null) {
-        getAllPossibleMoves(otherPieces, pieces, !isWhiteTurn, otherSquare)
-          .forEach((moveSquare) => {
-            if (moveSquare == square) {
-              foundCheck = true;
-              return;
-            }
-          });
+  Object.keys(otherPieces).forEach((otherSquare) => {
+    getAllPossibleMoves(board, !isWhiteTurn, otherSquare)
+      .forEach((move) => {
+        if (move == square) {
+          foundCheck = true;
+          return;
+        }
       }
-    }
-  }
+    );
+  });
   return foundCheck;
+}
+
+export const doesLegalMoveExist = (board, isWhiteTurn) => {
+  const pieces = isWhiteTurn ? Board.getWhitePieces(board) : Board.getBlackPieces(board);
+  let foundLegalMove = false;
+  Object.keys(pieces).forEach((square) => {
+    if (getMoves(board, isWhiteTurn, square).length > 0) {
+      foundLegalMove = true;
+      return;
+    }
+  });
+  return foundLegalMove;
 }
 
 // HARD_CODED_RULE
@@ -144,36 +175,6 @@ const isSquareInCheck = (pieces, otherPieces, isWhiteTurn, square) => {
 //     newHasStartingPositionMoved[oldSquare] = true;
 //   }
 //   return newHasStartingPositionMoved;
-// }
-
-// export const isPlayerChecked = (whitePieces, blackPieces, hasStartingPositionMoved, isWhiteTurn) => {
-//   const pieces = isWhiteTurn ? whitePieces : blackPieces;
-//   const otherPieces = isWhiteTurn ? blackPieces : whitePieces;
-//   let kingSquare = "";
-//   Object.keys(pieces).forEach((square) => {
-//     if (pieces[square] == Board.KING) {
-//       kingSquare = square;
-//       return;
-//     }
-//   });
-//   return isSquareChecked(kingSquare, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn);
-// }
-
-// export const noLegalMovesExist = (whitePieces, blackPieces, hasStartingPositionMoved, isWhiteTurn) => {
-//   const pieces = isWhiteTurn ? whitePieces : blackPieces;
-//   const otherPieces = isWhiteTurn ? blackPieces : whitePieces;
-//   let foundLegalMove = false;
-//   for (var row = 0; row < Board.BOARD_SIZE; row++) {
-//     for (var col = 0; col < Board.BOARD_SIZE; col++) {
-//       if (pieces[Board.getSquare(row, col)]) {
-//         if (getMoves(row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn).length > 0) {
-//           foundLegalMove = true;
-//           return;
-//         }
-//       }
-//     }
-//   }
-//   return !foundLegalMove;
 // }
 
 // const addCastleMoves = (moveSquares, row, col, pieces, otherPieces, hasStartingPositionMoved, isWhiteTurn) => {

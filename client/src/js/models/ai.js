@@ -1,5 +1,5 @@
 import * as Board from './board';
-import * as Move from '../models/move';
+import * as Move from './move';
 
 export const getMove = (config, board, isWhiteTurn) => {
   return chooseRandomMove(board, isWhiteTurn);
@@ -11,7 +11,7 @@ export const chooseRandomMove = (board, isWhiteTurn) => {
   shuffle(Object.keys(pieces)).forEach((square) => {
     const moves = Move.getMoves(board, isWhiteTurn, square);
     if (moves.length > 0) {
-      move = [square, moves[0]];
+      move = [square, shuffle(moves)[0]];
       return;
     }
   });

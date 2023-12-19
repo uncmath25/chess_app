@@ -7,15 +7,6 @@ import * as Style from '../utils/style';
 const IMAGE_SIZE_PIXELS = 55;
 
 export default function Board(props) {
-  // useEffect(() => {
-  //   const isChecked = isPlayerChecked(whitePieces, blackPieces, hasStartingPositionMoved, props.isWhiteTurn);
-  //   props.setIsPlayerInCheck(isChecked);
-  //   if (noLegalMovesExist(whitePieces, blackPieces, hasStartingPositionMoved, props.isWhiteTurn)) {
-  //     if (isChecked) { props.setIsPlayerMated(true); }
-  //     else { props.setIsPlayerStalemated(true); }
-  //     setIsGameOver(true);
-  //   }
-  // });
   const getRowColIter = (isRow, isWhiteTurn) => {
     const iter = Array.from(Array(BOARD_SIZE).keys());
     return ((isRow && !isWhiteTurn) || (!isRow && isWhiteTurn)) ? iter : [...iter].reverse();
