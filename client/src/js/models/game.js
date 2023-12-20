@@ -1,5 +1,6 @@
 import * as AI from './ai';
 import * as Board from './board';
+import * as Castle from './castle';
 import * as Move from './move';
 import * as User from './user';
 
@@ -15,6 +16,7 @@ const KEY_AI = "AI";
 const KEY_IS_PLAYER_WHITE = "IS_PLAYER_WHITE";
 const KEY_GAME_MODE = "GAME_MODE";
 const KEY_IS_WHITE_TURN = "IS_WHITE_TURN";
+const KEY_CASTLE = "CASTLE";
 const KEY_IS_PAUSED = "IS_PAUSED";
 const KEY_IS_CHECKED = "IS_CHECKED";
 const KEY_HAS_MOVES = "HAS_MOVES";
@@ -26,6 +28,7 @@ export const init = (gameMode, isPlayerWhite) => ({
   [KEY_GAME_MODE]: gameMode,
   [KEY_IS_PLAYER_WHITE]: isPlayerWhite,
   [KEY_IS_WHITE_TURN]: true,
+  [KEY_CASTLE]: Castle.init(),
   [KEY_IS_PAUSED]: false,
   [KEY_IS_CHECKED]: false,
   [KEY_HAS_MOVES]: true
@@ -36,6 +39,7 @@ const getUser = (game) => game[KEY_USER];
 const getAI = (game) => game[KEY_AI];
 const getGameMode = (game) => game[KEY_GAME_MODE];
 export const isWhiteTurn = (game) => game[KEY_IS_WHITE_TURN];
+const getCastle = (game) => game[KEY_CASTLE];
 export const isPaused = (game) => game[KEY_IS_PAUSED];
 export const isChecked = (game) => game[KEY_IS_CHECKED];
 export const hasMoves = (game) => game[KEY_HAS_MOVES];
@@ -64,24 +68,24 @@ export const resetUserSelection = (game) => {
 }
 export const updateUserSelection = (game, square) => {
   User.setSelectedSquare(getUser(game), square);
-  User.setPossibleMoves(getUser(game), Move.getMoves(getBoard(game), isWhiteTurn(game), square));
+  User.setPossibleMoves(getUser(game),
+    Move.getLegalMoves(getBoard(game), isWhiteTurn(game), getCastle(game), square));
 }
 
 export const move = (game, newSquare) => {
   Board.move(getBoard(game), isWhiteTurn(game), getSelectedSquare(game), newSquare);
+  Castle.update(getCastle(game), getSelectedSquare(game));
   endTurn(game);
-  checkNextPlayer(game);
   if (getGameMode(game) == GAME_MODE_AI) {
-    const [oldSquare, newSquare] = AI.getMove(getAI(game), getBoard(game), isWhiteTurn(game));
+    const [oldSquare, newSquare] = AI.getMove(
+      getAI(game), getBoard(game), isWhiteTurn(game), getCastle(game),);
     Board.move(getBoard(game), isWhiteTurn(game), oldSquare, newSquare);
+    Castle.update(getCastle(game), oldSquare);
     endTurn(game);
-    checkNextPlayer(game);
   }
 }
 const endTurn = (game) => {
   game[KEY_IS_WHITE_TURN] = !game[KEY_IS_WHITE_TURN];
-}
-const checkNextPlayer = (game) => {
   game[KEY_IS_CHECKED] = Move.isPlayerChecked(getBoard(game), isWhiteTurn(game));
-  game[KEY_HAS_MOVES] = Move.doesLegalMoveExist(getBoard(game), isWhiteTurn(game));
+  game[KEY_HAS_MOVES] = Move.doesLegalMoveExist(getBoard(game), isWhiteTurn(game), getCastle(game));
 }

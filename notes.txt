@@ -1,1 +1,11 @@
-Setup K8 - https://mattermost.com/blog/how-to-deploy-a-react-app-to-kubernetes-using-docker/
+Add history object to track board state changes
+
+Add notation <-> history converter and possibly importer
+
+Add en passant
+Add other pawn promotion options - modal for user to choose
+
+Add piece captured icons
+Consider testing - checking scenarios
+
+Consider more row/col vs square cleanup

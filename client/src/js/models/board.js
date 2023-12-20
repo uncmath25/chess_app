@@ -62,20 +62,24 @@ export const move = (board, isWhiteTurn, oldSquare, newSquare) => {
     addWhitePiece(board, newSquare, getWhitePiece(board, oldSquare));
     removeWhitePiece(board, oldSquare);
     if (isBlackPiece(board, newSquare)) { removeBlackPiece(board, newSquare); }
-    handlePawnPromotion(getWhitePieces(board), newSquare);
+    handleSpecialCases(getWhitePieces(board), newSquare);
   } else {
     addBlackPiece(board, newSquare, getBlackPiece(board, oldSquare));
     removeBlackPiece(board, oldSquare);
     if (isWhitePiece(board, newSquare)) { removeWhitePiece(board, newSquare); }
-    handlePawnPromotion(getBlackPieces(board), newSquare);
+    handleSpecialCases(getBlackPieces(board), newSquare);
   }
-  // TODO: Handle special moves - castle, en passant
 };
 const addWhitePiece = (board, square, piece) => { getWhitePieces(board)[square] = piece; };
 const removeWhitePiece = (board, square) => { delete getWhitePieces(board)[square]; };
 const addBlackPiece = (board, square, piece) => { getBlackPieces(board)[square] = piece; };
 const removeBlackPiece = (board, square) => { delete getBlackPieces(board)[square]; };
 
+const handleSpecialCases = (pieces, newSquare) => {
+  handlePawnPromotion(pieces, newSquare);
+  handleCastles(pieces, newSquare);
+  // TODO: Handle en passant
+}
 // TODO: Update pawn promotion besides just queen
 const handlePawnPromotion = (pieces, newSquare) => {
   const row = getSquareCoords(newSquare)[0];
@@ -83,20 +87,15 @@ const handlePawnPromotion = (pieces, newSquare) => {
     pieces[newSquare] = QUEEN;
   }
 }
-
-// const handleCastles = (pieces, oldSquare, newSquare) => {
-//   [1, Game.BOARD_SIZE].forEach((row) => {
-//     if (oldSquare == "e" + row) {
-//       if (newSquare == "g" + row) {
-//         pieces["g" + row] = KING;
-//         pieces["f" + row] = ROOK;
-//         pieces["h" + row] = "";
-//       }
-//       if (newSquare == "a" + row) {
-//         pieces["c" + row] = KING;
-//         pieces["d" + row] = ROOK;
-//         pieces["a" + row] = "";
-//       }
-//     }
-//   });
-// }
+// HARD_CODED
+const handleCastles = (pieces, newSquare) => {
+  if (pieces[newSquare] != KING) { return; }
+  if (newSquare == "g1") { updateRookCastle(pieces, "h1", "f1"); }
+  if (newSquare == "c1") { updateRookCastle(pieces, "a1", "d1"); }
+  if (newSquare == "g8") { updateRookCastle(pieces, "h8", "f8"); }
+  if (newSquare == "c8") { updateRookCastle(pieces, "a8", "d8"); }
+}
+const updateRookCastle = (pieces, oldSquare, newSquare) => {
+  delete pieces[oldSquare];
+  pieces[newSquare] = ROOK;
+}
