@@ -1,8 +1,19 @@
 import * as Board from './board';
 import * as Move from './move';
 
+export const AI_TYPE_RANDOM = "RANDOM";
+
+const KEY_TYPE = "TYPE";
+
+const getType = (config) => config[KEY_TYPE];
+export const setType = (config, type) => { config[KEY_TYPE] = type; }
+
 export const getMove = (config, board, isWhiteTurn, castle) => {
-  return chooseRandomMove(board, isWhiteTurn, castle);
+  switch (getType(config)) {
+    case AI_TYPE_RANDOM:
+      return chooseRandomMove(board, isWhiteTurn, castle);
+  }
+  console.log(`ERROR: AI type '${getType(config)}' not supported`)
 };
 
 export const chooseRandomMove = (board, isWhiteTurn, castle) => {
@@ -15,7 +26,7 @@ export const chooseRandomMove = (board, isWhiteTurn, castle) => {
       return;
     }
   });
-  if (move == "") { console.log("AI could not find a move!") }
+  if (move == "") { console.log("ERROR: Random AI could not find a move!") }
   return move;
 };
 

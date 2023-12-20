@@ -4,10 +4,10 @@ import * as Castle from './castle';
 import * as Move from './move';
 import * as User from './user';
 
-export const GAME_MODE_SANDBOX = "SANDBOX";
-export const GAME_MODE_SWITCH = "SWITCH";
-export const GAME_MODE_AI = "AI";
-export const GAME_MODES = [GAME_MODE_SANDBOX, GAME_MODE_SWITCH, GAME_MODE_AI];
+const GAME_MODE_SANDBOX = "SANDBOX";
+const GAME_MODE_SWITCH = "SWITCH";
+const GAME_MODE_AI_RANDOM = "AI_RANDOM";
+export const GAME_MODES = [GAME_MODE_SANDBOX, GAME_MODE_SWITCH, GAME_MODE_AI_RANDOM];
 export const DEFAULT_GAME_MODE = GAME_MODE_SANDBOX;
 
 const KEY_BOARD = "BOARD";
@@ -21,10 +21,21 @@ const KEY_IS_PAUSED = "IS_PAUSED";
 const KEY_IS_CHECKED = "IS_CHECKED";
 const KEY_HAS_MOVES = "HAS_MOVES";
 
-export const init = (gameMode, isPlayerWhite) => ({
+export const init = (gameMode, isPlayerWhite) => {
+  const game = initGame(gameMode, isPlayerWhite);
+  if (isGameModeAI(game) && !isPlayerWhite) {
+    const [oldSquare, newSquare] = AI.getMove(
+      getAI(game), getBoard(game), isWhiteTurn(game), getCastle(game),);
+    Board.move(getBoard(game), isWhiteTurn(game), oldSquare, newSquare);
+    Castle.update(getCastle(game), oldSquare);
+    endTurn(game);
+  }
+  return game;
+};
+const initGame = (gameMode, isPlayerWhite) => ({
   [KEY_BOARD]: Board.init(),
   [KEY_USER]: User.init(),
-  [KEY_AI]: {},
+  [KEY_AI]: buildAIConfig(gameMode),
   [KEY_GAME_MODE]: gameMode,
   [KEY_IS_PLAYER_WHITE]: isPlayerWhite,
   [KEY_IS_WHITE_TURN]: true,
@@ -33,6 +44,13 @@ export const init = (gameMode, isPlayerWhite) => ({
   [KEY_IS_CHECKED]: false,
   [KEY_HAS_MOVES]: true
 });
+const buildAIConfig = (gameMode) => {
+  const config = {};
+  if (gameMode == GAME_MODE_AI_RANDOM) {
+    AI.setType(config, AI.AI_TYPE_RANDOM)
+  }
+  return config;
+};
 
 const getBoard = (game) => game[KEY_BOARD];
 const getUser = (game) => game[KEY_USER];
@@ -43,6 +61,10 @@ const getCastle = (game) => game[KEY_CASTLE];
 export const isPaused = (game) => game[KEY_IS_PAUSED];
 export const isChecked = (game) => game[KEY_IS_CHECKED];
 export const hasMoves = (game) => game[KEY_HAS_MOVES];
+
+const isGameModeAI = (game) => {
+  return getGameMode(game) == GAME_MODE_AI_RANDOM;
+};
 
 export const isWhitePiece = (game, square) => Board.isWhitePiece(getBoard(game), square);
 export const getWhitePiece = (game, square) => Board.getWhitePiece(getBoard(game), square);
@@ -76,7 +98,7 @@ export const move = (game, newSquare) => {
   Board.move(getBoard(game), isWhiteTurn(game), getSelectedSquare(game), newSquare);
   Castle.update(getCastle(game), getSelectedSquare(game));
   endTurn(game);
-  if (getGameMode(game) == GAME_MODE_AI) {
+  if (isGameModeAI(game)) {
     const [oldSquare, newSquare] = AI.getMove(
       getAI(game), getBoard(game), isWhiteTurn(game), getCastle(game),);
     Board.move(getBoard(game), isWhiteTurn(game), oldSquare, newSquare);
