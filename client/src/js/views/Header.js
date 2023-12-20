@@ -2,19 +2,18 @@ import { useState } from 'react';
 import { Button, Form, Navbar, Nav } from 'react-bootstrap';
 
 import * as Game from '../models/game';
+import * as History from '../models/history';
 import { getPaddingStyle } from '../utils/style';
 
 const LOGO = require('../../assets/logo.ico');
 const TITLE = 'Chess App';
-export const DEFAULT_GAME_MODE = Game.DEFAULT_GAME_MODE;
-// export const DEFAULT_GAME_MODE = Game.GAME_MODE_AI;
 export const IS_PLAYER_WHITE = true;
 
 export default function Header(props) {
-  const [gameMode, setGameMode] = useState(DEFAULT_GAME_MODE);
+  const [gameMode, setGameMode] = useState(Game.DEFAULT_GAME_MODE);
   const [isPlayerWhite, setIsPlayerWhite] = useState(IS_PLAYER_WHITE);
   const startNewGame = () => {
-    props.setGame(Game.init(gameMode, isPlayerWhite));
+    props.setHistory(History.init(gameMode, isPlayerWhite));
   };
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">

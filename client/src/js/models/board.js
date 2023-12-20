@@ -82,7 +82,7 @@ const handleSpecialCases = (pieces, newSquare) => {
 }
 // TODO: Update pawn promotion besides just queen
 const handlePawnPromotion = (pieces, newSquare) => {
-  const row = getSquareCoords(newSquare)[0];
+  const [row, col] = getSquareCoords(newSquare);
   if (pieces[newSquare] == PAWN && (row == 0 || row == BOARD_SIZE - 1)) {
     pieces[newSquare] = QUEEN;
   }
