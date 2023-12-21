@@ -7,14 +7,17 @@ import * as User from './user';
 const GAME_MODE_SANDBOX = "SANDBOX";
 const GAME_MODE_AI_RANDOM = "AI_RANDOM";
 const GAME_MODE_AI_DEPTH_1 = "AI_DEPTH_1";
+const GAME_MODE_AI_DEPTH_2 = "AI_DEPTH_2";
 export const GAME_MODES = [
   GAME_MODE_SANDBOX,
   GAME_MODE_AI_RANDOM,
-  GAME_MODE_AI_DEPTH_1
+  GAME_MODE_AI_DEPTH_1,
+  GAME_MODE_AI_DEPTH_2
 ];
 // export const DEFAULT_GAME_MODE = GAME_MODE_SANDBOX;
 // export const DEFAULT_GAME_MODE = GAME_MODE_AI_RANDOM;
-export const DEFAULT_GAME_MODE = GAME_MODE_AI_DEPTH_1;
+// export const DEFAULT_GAME_MODE = GAME_MODE_AI_DEPTH_1;
+export const DEFAULT_GAME_MODE = GAME_MODE_AI_DEPTH_2;
 
 const KEY_BOARD = "BOARD";
 const KEY_USER = "USER";
@@ -37,6 +40,7 @@ const buildAIConfig = (gameMode) => {
   const config = {};
   if (gameMode == GAME_MODE_AI_RANDOM) { AI.setType(config, AI.AI_TYPE_RANDOM) }
   if (gameMode == GAME_MODE_AI_DEPTH_1) { AI.setType(config, AI.AI_TYPE_DEPTH_1) }
+  if (gameMode == GAME_MODE_AI_DEPTH_2) { AI.setType(config, AI.AI_TYPE_DEPTH_2) }
   return config;
 };
 

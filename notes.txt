@@ -1,3 +1,5 @@
+Improve user selection for slow AI
+
 Improve AI
     Don't allow stalemate
     Look to capture

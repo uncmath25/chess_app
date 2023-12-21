@@ -72,4 +72,3 @@ export const move = (history, square) => {
     addGame(history, newGame);
   }
 };
-
