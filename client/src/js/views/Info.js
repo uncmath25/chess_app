@@ -4,14 +4,16 @@ import * as Game from '../models/game';
 import * as History from '../models/history';
 import { getPaddingStyle } from '../utils/style';
 
-const HISTORY_TABLE_HEIGHT_PX = "320px";
+const HISTORY_TABLE_HEIGHT_PX = "380px";
 
 export default function Info(props) {
-  const getTurn = () => {
-    const rawTurn = History.getCurrentTurn(props.history);
-    return ((rawTurn % 2 == 0) ? rawTurn / 2 : (rawTurn - 1) / 2) + 1;
-  }
-  const isWhiteTurn = () => Game.isWhiteTurn(History.getGame(props.history));
+  const getPointSpread = () => {
+    const whitePoints = Game.getPoints(History.getGame(props.history), true);
+    const blackPoints = Game.getPoints(History.getGame(props.history), false);
+    if (whitePoints == blackPoints) { return "EVEN"; }
+    if (whitePoints > blackPoints) { return "White +" + (whitePoints - blackPoints); }
+    return "Black +" + (blackPoints - whitePoints);
+  };
   const isChecked = () => Game.isChecked(History.getGame(props.history));
   const getResult = () => {
     const game = History.getGame(props.history);
@@ -44,14 +46,13 @@ export default function Info(props) {
     props.setHistory(newHistory);
   };
   const getTurns = () => {
-    // TODO: Cleanup this up
     const totalTurns = History.getTotalTurns(props.history);
     const turnsArr = [];
     const len = ((totalTurns % 2) ? (totalTurns - 1) / 2 : totalTurns / 2) + 1;
     for (let i = 1; i <= len; i++) {
       // TODO: Add actual chess move notation
-      const whiteMoveNotation = `W_MOVE_${i}`;
-      const blackMoveNotation = `B_MOVE_${i}`;
+      const whiteMoveNotation = "?";
+      const blackMoveNotation = "?";
       turnsArr.push([whiteMoveNotation, blackMoveNotation]);
     }
     turnsArr[len - 1][1] = "";
@@ -73,12 +74,8 @@ export default function Info(props) {
         <Table bordered >
           <tbody>
             <tr>
-              <td>TURN</td>
-              <td>{getTurn()}</td>
-            </tr>
-            <tr>
-              <td>PLAYER</td>
-              <td>{isWhiteTurn() ? "White" : "Black"}</td>
+              <td>POINTS</td>
+              <td>{getPointSpread()}</td>
             </tr>
             <tr>
               <td>CHECKED</td>
@@ -90,9 +87,6 @@ export default function Info(props) {
             </tr>
           </tbody>
         </Table>
-      </Row>
-      <Row>
-        <Col xs={12} style={getPaddingStyle(5)} />
       </Row>
       <Row>
         <Col xs={3}>
@@ -116,6 +110,7 @@ export default function Info(props) {
           <Table bordered >
             <thead>
               <tr>
+                <th/>
                 <th>White</th>
                 <th>Black</th>
               </tr>
@@ -123,6 +118,7 @@ export default function Info(props) {
             <tbody>
               {getTurns().map((row, rowIdx) =>
                 <tr key={rowIdx} >
+                  <td key={"Turn"} >{rowIdx + 1}</td>
                   <td key={"White"} className={highlightCell(rowIdx, 0) ? "bg-warning" : ""}>{row[0]}</td>
                   <td key={"Black"} className={highlightCell(rowIdx, 1) ? "bg-warning" : ""}>{row[1]}</td>
                 </tr>

@@ -10,7 +10,7 @@ import * as History from './models/history';
 export default function App() {
   const [history, setHistory] = useState(History.init(Game.DEFAULT_GAME_MODE, IS_PLAYER_WHITE));
   useEffect(() => {
-    console.log(history);
+    // console.log(history);
     const onKeyDown = (e) => {
       if (e.key === 'ArrowDown'){ goToStart(); }
       if (e.key === 'ArrowLeft'){ goBack(); }
@@ -45,10 +45,10 @@ export default function App() {
       <Header setHistory={setHistory} />
       <Container>
         <Row>
-          <Col sm={12} md={9} lg={{ span: 7, offset: 1 }} xl={{ span: 5, offset: 2 }}>
+          <Col sm={12} md={9} lg={{ span: 8 }} xl={{ span: 5, offset: 2 }}>
             <Board history={history} setHistory={setHistory} />
           </Col>
-          <Col sm={12} md={12} lg={{ span: 3, offset: 1 }} xl={{ span: 3, offset: 2 }}>
+          <Col sm={12} md={12} lg={{ span: 4 }} xl={{ span: 3, offset: 2 }}>
             <Info history={history} setHistory={setHistory} />
           </Col>
         </Row>

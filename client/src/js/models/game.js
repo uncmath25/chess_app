@@ -8,7 +8,8 @@ const GAME_MODE_SANDBOX = "SANDBOX";
 const GAME_MODE_SWITCH = "SWITCH";
 const GAME_MODE_AI_RANDOM = "AI_RANDOM";
 export const GAME_MODES = [GAME_MODE_SANDBOX, GAME_MODE_SWITCH, GAME_MODE_AI_RANDOM];
-export const DEFAULT_GAME_MODE = GAME_MODE_SANDBOX;
+// export const DEFAULT_GAME_MODE = GAME_MODE_SANDBOX;
+export const DEFAULT_GAME_MODE = GAME_MODE_AI_RANDOM;
 
 const KEY_BOARD = "BOARD";
 const KEY_USER = "USER";
@@ -110,3 +111,5 @@ const endTurn = (game) => {
   game[KEY_IS_CHECKED] = Move.isPlayerChecked(getBoard(game), isWhiteTurn(game));
   game[KEY_HAS_MOVES] = Move.doesLegalMoveExist(getBoard(game), isWhiteTurn(game), getCastle(game));
 }
+
+export const getPoints = (game, isWhite) => Board.getPoints(getBoard(game), isWhite);

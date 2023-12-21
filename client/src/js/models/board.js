@@ -99,3 +99,16 @@ const updateRookCastle = (pieces, oldSquare, newSquare) => {
   delete pieces[oldSquare];
   pieces[newSquare] = ROOK;
 }
+
+export const getPoints = (board, isWhite) => {
+  const pieces = isWhite ? getWhitePieces(board) : getBlackPieces(board);
+  return Object.keys(pieces).map(square => PIECE_POINTS[pieces[square]]).reduce((p1, p2) => p1 + p2);
+};
+const PIECE_POINTS = {
+  [PAWN]: 1,
+  [KNIGHT]: 3,
+  [BISHOP]: 3,
+  [ROOK]: 5,
+  [QUEEN]: 9,
+  [KING]: 0
+};
