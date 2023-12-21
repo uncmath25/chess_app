@@ -1,10 +1,12 @@
+Improve AI
+    Don't allow stalemate
+    Look to capture
+    Look to checkmate
+
 Add notation <-> history converter and possibly importer
 
 Add en passant
 Add other pawn promotion options - modal for user to choose
 
-Improve history UI
 Add piece captured icons
 Consider testing - checking scenarios
-
-Consider more row/col vs square cleanup

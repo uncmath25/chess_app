@@ -112,3 +112,8 @@ const PIECE_POINTS = {
   [QUEEN]: 9,
   [KING]: 0
 };
+export const getPointSpread = (board, isWhite) => {
+  const whitePoints = getPoints(board, true);
+  const blackPoints = getPoints(board, false);
+  return isWhite ? whitePoints - blackPoints : blackPoints - whitePoints;
+};

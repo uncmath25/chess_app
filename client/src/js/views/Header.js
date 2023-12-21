@@ -7,13 +7,21 @@ import { getPaddingStyle } from '../utils/style';
 
 const LOGO = require('../../assets/logo.ico');
 const TITLE = 'Chess App';
+export const IS_VIEW_SWITCHED = false;
 export const IS_PLAYER_WHITE = true;
 
 export default function Header(props) {
+  const [isViewSwitched, setIsViewSwitched] = useState(IS_VIEW_SWITCHED);
   const [gameMode, setGameMode] = useState(Game.DEFAULT_GAME_MODE);
   const [isPlayerWhite, setIsPlayerWhite] = useState(IS_PLAYER_WHITE);
+  const switchView = () => {
+    const newHistory = {...props.history};
+    History.switchView(newHistory, !isViewSwitched);
+    props.setHistory(newHistory);
+    setIsViewSwitched(!isViewSwitched);
+  };
   const startNewGame = () => {
-    props.setHistory(History.init(gameMode, isPlayerWhite));
+    props.setHistory(History.init(gameMode, isPlayerWhite, isViewSwitched));
   };
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
@@ -33,6 +41,9 @@ export default function Header(props) {
       </Navbar.Collapse>
       <Navbar.Brand>
         <Form className='d-flex'>
+        <Form.Check name="switchView" label="Switch View"
+                      checked={isViewSwitched} onChange={() => switchView()} />
+          <span style={getPaddingStyle(5)} />
           <Form.Select value={gameMode} onChange={(event) => setGameMode(event.target.value) } >
             {Array.from(Array(Game.GAME_MODES.length).keys()).map(
               i => <option key={i}>{Game.GAME_MODES[i]}</option>

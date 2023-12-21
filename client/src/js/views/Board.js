@@ -9,8 +9,7 @@ const IMAGE_SIZE_PIXELS = 55;
 
 export default function Board(props) {
   const getRowColIter = (isRow) => {
-    const game = History.getGame(props.history);
-    const isWhiteTurn = Game.isViewWhite(game);
+    const isWhiteTurn = History.isViewWhite(props.history);
     const iter = Array.from(Array(BOARD_SIZE).keys());
     return ((isRow && !isWhiteTurn) || (!isRow && isWhiteTurn)) ? iter : [...iter].reverse();
   };

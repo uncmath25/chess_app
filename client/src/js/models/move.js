@@ -129,7 +129,7 @@ const getKingSquare = (board, isWhiteTurn) => {
   Object.keys(pieces).forEach((square) => {
     if (pieces[square] == Board.KING) { kingSquare = square; return; }
   });
-  if (kingSquare == "") { console.log("ERROR: King Square could not be found!") }
+  if (kingSquare == "") { console.log("ERROR: King Square could not be found!"); }
   return kingSquare;
 }
 

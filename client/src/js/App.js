@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 
 import Board from './views/Board';
-import Header, { IS_PLAYER_WHITE } from './views/Header';
+import Header, { IS_VIEW_SWITCHED, IS_PLAYER_WHITE } from './views/Header';
 import Info from './views/Info';
 import * as Game from './models/game';
 import * as History from './models/history';
 
 export default function App() {
-  const [history, setHistory] = useState(History.init(Game.DEFAULT_GAME_MODE, IS_PLAYER_WHITE));
+  const [history, setHistory] = useState(
+  History.init(Game.DEFAULT_GAME_MODE, IS_PLAYER_WHITE, IS_VIEW_SWITCHED));
   useEffect(() => {
     // console.log(history);
     const onKeyDown = (e) => {
@@ -42,7 +43,7 @@ export default function App() {
   };
   return (
     <div>
-      <Header setHistory={setHistory} />
+      <Header history={history} setHistory={setHistory} />
       <Container>
         <Row>
           <Col sm={12} md={9} lg={{ span: 8 }} xl={{ span: 5, offset: 2 }}>
