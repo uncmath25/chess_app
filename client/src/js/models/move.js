@@ -32,11 +32,11 @@ const getPawnMoves = (pieces, otherPieces, isWhiteTurn, row, col) => {
   const nextRow = row + (isWhiteTurn ? 1 : -1);
   if (!pieces[Board.getSquare(nextRow, col)] && !otherPieces[Board.getSquare(nextRow, col)]) {
     moves.push(Board.getSquare(nextRow, col));
-  }
-  const startRow = isWhiteTurn ? 1 : Board.BOARD_SIZE - 2
-  const farRow = row + (isWhiteTurn ? 2 : -2);
-  if (row == startRow && !pieces[Board.getSquare(farRow, col)] && !otherPieces[Board.getSquare(farRow, col)]) {
-    moves.push(Board.getSquare(farRow, col));
+    const startRow = isWhiteTurn ? 1 : Board.BOARD_SIZE - 2
+    const farRow = row + (isWhiteTurn ? 2 : -2);
+    if (row == startRow && !pieces[Board.getSquare(farRow, col)] && !otherPieces[Board.getSquare(farRow, col)]) {
+      moves.push(Board.getSquare(farRow, col));
+    }
   }
   if (col >= 1 && otherPieces[Board.getSquare(nextRow, col - 1)]) {
     moves.push(Board.getSquare(nextRow, col - 1));

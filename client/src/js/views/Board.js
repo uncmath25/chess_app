@@ -1,6 +1,6 @@
 import { Col, Container, Row, Table } from 'react-bootstrap';
 
-import { BOARD_SIZE, getSquare } from '../models/board';
+import { PAWN, BOARD_SIZE, getSquare } from '../models/board';
 import * as Game from '../models/game';
 import * as History from '../models/history';
 import * as Style from '../utils/style';
@@ -31,7 +31,8 @@ export default function Board(props) {
       const image = Style.getPieceImage(Game.getBlackPiece(game, square), false);
       return (<img src={image} width={IMAGE_SIZE_PIXELS} />);
     }
-    return (<img width={IMAGE_SIZE_PIXELS} />);
+    return (<img src={Style.getPieceImage(PAWN, true)}
+                 width={IMAGE_SIZE_PIXELS} style={{opacity: 0}} />);
   };
   const onSquareClick = (row, col) => {
     if (History.isPaused(props.history)) { return; }

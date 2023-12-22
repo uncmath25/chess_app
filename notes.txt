@@ -1,9 +1,8 @@
-Improve user selection for slow AI
-
-Improve AI
-    Don't allow stalemate
-    Look to capture
-    Look to checkmate
+Improve AI - give rule priorities
+    First look for moves that gives opponent no moves - check mat and stalemate
+    Next go with 1 move that gains point
+    Try to castle if possible
+    Try not to move king otherwise
 
 Add notation <-> history converter and possibly importer
 
@@ -12,3 +11,5 @@ Add other pawn promotion options - modal for user to choose
 
 Add piece captured icons
 Consider testing - checking scenarios
+
+Build ML approach with PA1 1-hot inputs and move KC73 1-hot outputs

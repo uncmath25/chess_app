@@ -79,8 +79,10 @@ export const chooseMaxPointGainMove = (board, isWhiteTurn, castle, depth) => {
   if (bestPointGain == -1) {
     // TODO: Review if this works, added to ensure result is given
     bestMove = chooseRandomMove(board, isWhiteTurn, castle);
-    bestPointGain = bestPointGain;
-    console.log("Making random move");
+    bestPointGain = 0;
+    if (depth == 2) {
+      console.log("Making random move");
+    }
   }
   return [bestMove, bestPointGain];
 }
