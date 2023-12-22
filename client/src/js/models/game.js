@@ -94,6 +94,7 @@ export const move = (game, newSquare) => {
 export const moveAI = (game) => {
   const [oldSquare, newSquare] = AI.getMove(
     getAI(game), getBoard(game), isWhiteTurn(game), getCastle(game));
+  console.log([oldSquare, newSquare]);
   Board.move(getBoard(game), isWhiteTurn(game), oldSquare, newSquare);
   Castle.update(getCastle(game), oldSquare);
   endTurn(game);

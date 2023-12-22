@@ -23,9 +23,9 @@ export const chooseMove = (config, board, isWhiteTurn, castle) => {
     case AI_TYPE_RANDOM:
       return chooseRandomMove(board, isWhiteTurn, castle);
     case AI_TYPE_DEPTH_1:
-      return chooseDepth1Move(board, isWhiteTurn, castle);
+      return chooseMaxPointGainMove(board, isWhiteTurn, castle, 1)[0];
     case AI_TYPE_DEPTH_2:
-      return chooseDepth2Move(board, isWhiteTurn, castle);
+      return chooseMaxPointGainMove(board, isWhiteTurn, castle, 2)[0];
   }
   console.log(`ERROR: AI type '${getType(config)}' not supported`);
 };
@@ -54,87 +54,33 @@ const shuffle = (arr) => {
   return arr;
 };
 
-export const chooseDepth1Move = (board, isWhiteTurn, castle) => {
+export const chooseMaxPointGainMove = (board, isWhiteTurn, castle, depth) => {
   const pieces = isWhiteTurn ? Board.getWhitePieces(board) : Board.getBlackPieces(board);
+  const otherPieces = isWhiteTurn ? Board.getBlackPieces(board) : Board.getWhitePieces(board);
   let bestMove = [];
-  let bestPointSpreadDiff = -100;
+  let bestPointGain = -1;
   shuffle(Object.keys(pieces)).forEach((square) => {
     const moves = Move.getLegalMoves(board, isWhiteTurn, castle, square);
     shuffle(moves).forEach((move) => {
-      const [movePointGainDiff, _, __] = getMovePointDiff(board, isWhiteTurn, castle, square, move);
-      if (movePointGainDiff > bestPointSpreadDiff) {
+      let pointGain = otherPieces[move] ? Board.getPoint(otherPieces[move]) : 0;
+      if (depth > 0) {
+        const testBoard = Board.copy(board);
+        Board.move(testBoard, isWhiteTurn, square, move);
+        const testCastle = {...castle};
+        Castle.update(testCastle, square);
+        pointGain -= chooseMaxPointGainMove(testBoard, !isWhiteTurn, testCastle, depth - 1)[1];
+      }
+      if (pointGain > bestPointGain) {
         bestMove = [square, move];
-        bestPointSpreadDiff = movePointGainDiff;
+        bestPointGain = pointGain;
       }
     });
   });
-  if (bestMove == []) { console.log("ERROR: Depth 1 AI could not find a move!"); }
-  return bestMove;
-}
-
-export const getMovePointDiff = (board, isWhiteTurn, castle, square, move) => {
-  const startingPointSpread = Board.getPointSpread(board, isWhiteTurn);
-  const testBoard = Board.copy(board);
-  Board.move(testBoard, isWhiteTurn, square, move);
-  const movePointSpread = Board.getPointSpread(testBoard, isWhiteTurn);
-  const movePointGain = movePointSpread - startingPointSpread;
-  const otherPieces = isWhiteTurn
-    ? Board.getBlackPieces(testBoard) : Board.getWhitePieces(testBoard);
-  let worstPointLoss = -100;
-  let worstOtherSquare = "";
-  let worstOtherMove = "";
-  shuffle(Object.keys(otherPieces)).forEach((otherSquare) => {
-    const otherMoves = Move.getLegalMoves(testBoard, !isWhiteTurn, castle, otherSquare);
-    shuffle(otherMoves).forEach((otherMove) => {
-      const otherTestBoard = Board.copy(testBoard);
-      Board.move(otherTestBoard, !isWhiteTurn, otherSquare, otherMove);
-      const pointLoss = movePointSpread - Board.getPointSpread(otherTestBoard, isWhiteTurn);
-      if (pointLoss > worstPointLoss) {
-        worstPointLoss = pointLoss;
-        worstOtherSquare = otherSquare;
-        worstOtherMove = otherMove;
-      }
-    });
-  });
-  return [movePointGain - worstPointLoss, worstOtherSquare, worstOtherMove];
-}
-
-export const chooseDepth2Move = (board, isWhiteTurn, castle) => {
-  const pieces1 = isWhiteTurn ? Board.getWhitePieces(board) : Board.getBlackPieces(board);
-  let bestMove = [];
-  let bestPointSpreadDiff = -100;
-  shuffle(Object.keys(pieces1)).forEach((square1) => {
-    const moves1 = Move.getLegalMoves(board, isWhiteTurn, castle, square1);
-    shuffle(moves1).forEach((move1) => {
-      const [movePointGainDiff1, worstOtherSquare1, worstOtherMove1] =
-        getMovePointDiff(board, isWhiteTurn, castle, square1, move1);
-      const testBoard = Board.copy(board);
-      Board.move(testBoard, isWhiteTurn, square1, move1);
-      const testCastle = {...castle};
-      Castle.update(testCastle, square1);
-      const otherTestBoard = Board.copy(testBoard);
-      Board.move(otherTestBoard, !isWhiteTurn, worstOtherSquare1, worstOtherMove1);
-      Castle.update(testCastle, worstOtherSquare1);
-      const pieces2 = isWhiteTurn
-        ? Board.getWhitePieces(otherTestBoard) : Board.getBlackPieces(otherTestBoard);
-      shuffle(Object.keys(pieces2)).forEach((square2) => {
-        const moves2 = Move.getLegalMoves(otherTestBoard, isWhiteTurn, testCastle, square2);
-        shuffle(moves2).forEach((move2) => {
-          const [movePointGainDiff2, worstOtherSquare2, worstOtherMove2] =
-            getMovePointDiff(otherTestBoard, isWhiteTurn, testCastle, square2, move2);
-          const movePointGainDiff = movePointGainDiff1 + movePointGainDiff2;
-          if (movePointGainDiff > bestPointSpreadDiff) {
-            console.log(movePointGainDiff1);
-            console.log([square1, move1]);
-            console.log(movePointGainDiff);
-            console.log("-----------");
-            bestMove = [square1, move1];
-            bestPointSpreadDiff = movePointGainDiff;
-          }
-        });
-      });
-    });
-  });
-  if (bestMove == []) { console.log("ERROR: Depth 2 AI could not find a move!"); }
-  return bestMove;
+  if (bestPointGain == -1) {
+    // TODO: Review if this works, added to ensure result is given
+    bestMove = chooseRandomMove(board, isWhiteTurn, castle);
+    bestPointGain = bestPointGain;
+    console.log("Making random move");
+  }
+  return [bestMove, bestPointGain];
 }

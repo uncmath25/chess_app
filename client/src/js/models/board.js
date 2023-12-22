@@ -62,12 +62,12 @@ export const move = (board, isWhiteTurn, oldSquare, newSquare) => {
     addWhitePiece(board, newSquare, getWhitePiece(board, oldSquare));
     removeWhitePiece(board, oldSquare);
     if (isBlackPiece(board, newSquare)) { removeBlackPiece(board, newSquare); }
-    handleSpecialCases(getWhitePieces(board), newSquare);
+    handleSpecialCases(getWhitePieces(board), isWhiteTurn, oldSquare, newSquare);
   } else {
     addBlackPiece(board, newSquare, getBlackPiece(board, oldSquare));
     removeBlackPiece(board, oldSquare);
     if (isWhitePiece(board, newSquare)) { removeWhitePiece(board, newSquare); }
-    handleSpecialCases(getBlackPieces(board), newSquare);
+    handleSpecialCases(getBlackPieces(board), isWhiteTurn, oldSquare, newSquare);
   }
 };
 const addWhitePiece = (board, square, piece) => { getWhitePieces(board)[square] = piece; };
@@ -75,9 +75,9 @@ const removeWhitePiece = (board, square) => { delete getWhitePieces(board)[squar
 const addBlackPiece = (board, square, piece) => { getBlackPieces(board)[square] = piece; };
 const removeBlackPiece = (board, square) => { delete getBlackPieces(board)[square]; };
 
-const handleSpecialCases = (pieces, newSquare) => {
+const handleSpecialCases = (pieces, isWhiteTurn, oldSquare, newSquare) => {
   handlePawnPromotion(pieces, newSquare);
-  handleCastles(pieces, newSquare);
+  handleCastles(pieces, isWhiteTurn, oldSquare, newSquare);
   // TODO: Handle en passant
 }
 // TODO: Update pawn promotion besides just queen
@@ -88,8 +88,10 @@ const handlePawnPromotion = (pieces, newSquare) => {
   }
 }
 // HARD_CODED
-const handleCastles = (pieces, newSquare) => {
+const handleCastles = (pieces, isWhiteTurn, oldSquare, newSquare) => {
   if (pieces[newSquare] != KING) { return; }
+  if (isWhiteTurn && oldSquare != "e1") { return; }
+  if (!isWhiteTurn && oldSquare != "e8") { return; }
   if (newSquare == "g1") { updateRookCastle(pieces, "h1", "f1"); }
   if (newSquare == "c1") { updateRookCastle(pieces, "a1", "d1"); }
   if (newSquare == "g8") { updateRookCastle(pieces, "h8", "f8"); }
@@ -100,6 +102,7 @@ const updateRookCastle = (pieces, oldSquare, newSquare) => {
   pieces[newSquare] = ROOK;
 }
 
+export const getPoint = (piece) => PIECE_POINTS[piece];
 export const getPoints = (board, isWhite) => {
   const pieces = isWhite ? getWhitePieces(board) : getBlackPieces(board);
   return Object.keys(pieces).map(square => PIECE_POINTS[pieces[square]]).reduce((p1, p2) => p1 + p2);
@@ -111,9 +114,4 @@ const PIECE_POINTS = {
   [ROOK]: 5,
   [QUEEN]: 9,
   [KING]: 0
-};
-export const getPointSpread = (board, isWhite) => {
-  const whitePoints = getPoints(board, true);
-  const blackPoints = getPoints(board, false);
-  return isWhite ? whitePoints - blackPoints : blackPoints - whitePoints;
 };
